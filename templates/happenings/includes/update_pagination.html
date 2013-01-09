@@ -1,0 +1,19 @@
+
+{% if next or previous %}{% load typogrify %}
+<ul class="event-pagination">
+<li>
+{% if previous %}
+	<a href="{{ previous.get_absolute_url }}">
+	<span class="meta">Previous:</span> 
+	{{ previous.title|typogrify }}</a>
+{% endif %}
+</li>
+<li>
+{% if next %}
+	<a href="{{ next.get_absolute_url }}">	<span class="meta">Next:</span> 
+{{ next.title|typogrify }}</a>
+{% endif %}
+
+</li>
+</ul>
+{% endif %}

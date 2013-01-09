@@ -1,0 +1,34 @@
+{% load humanize %}
+
+<div class="giveaway_results">
+  <h3>
+    For {{ giveaway.number|apnumber }} {{ giveaway.prize }}{{giveaway.number|pluralize }}, 
+    we asked:
+   </h3>
+   <h2>{{ giveaway.question }}</h2>
+ 
+  {% if winners %}
+    <ul>
+      {% for winner in winners %}
+        <li>
+          <strong>{{ winner.respondent.preferred_name }} said:</strong> 
+          "{{ winner.answer }}".
+        </li>
+      {% endfor %}
+    </ul>
+
+    {% if giveaway.explanation %}
+      <p class="meta">{{ giveaway.explanation}}</p>
+    {% endif %}
+
+    <p>
+      Congratulations, 
+      {% for winner in winners %}
+        {% if forloop.first %}{% else %}{% if forloop.last %} and {% else %}, {% endif %}{% endif %}{{ winner.respondent.preferred_name }}
+      {% endfor %}. 
+      You will be contacted shortly for mailing info.
+    </p>
+  {% else %}
+    <p>No winner was chosen.</p>
+  {% endif %}
+</div>

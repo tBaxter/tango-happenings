@@ -1,0 +1,10 @@
+{{ form.errors }}{% load humanize %}
+<h3>What's up for grabs? {{ giveaway.number|apnumber|capfirst }} {{ giveaway.prize }}{{ giveaway.number|pluralize }}</h3>
+<form action="/happenings/giveaways/response/{{ giveaway.id }}/" method="post" class="boxedform giveawayform">{% csrf_token %}
+  <h4>The question: {{ giveaway.question }}</h4>
+  {% if giveaway.long_q %}<p class="meta">{{ giveaway.long_q }}</p>{% endif %}
+  {{ form.as_p}}
+  <p class="submithold"><input type="submit" value="Submit your answer"></p>
+  <input type="hidden" name="js" value="true">
+</form>
+

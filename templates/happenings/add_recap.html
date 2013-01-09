@@ -1,0 +1,86 @@
+{% extends "happenings/base.html" %}
+{% block title %}Add Event Recap: {%endblock %}
+{% block section %}events{% endblock %}{% load typogrify %}
+{% block extrahead %}
+<script type="text/javascript" src="/media/js/jquery.highlightFade.js"></script>
+<script type="text/javascript">
+	$(document).ready(function() {
+	var allow = new Array('gif','png','jpg','jpeg');
+	$(":file").change(function(){
+		var ext = $(this).val().split('.').pop().toLowerCase();
+		if(jQuery.inArray(ext, allow) == -1) {
+    		alert('Please only use jpg or gif formats.');
+		}
+	});
+	});
+</script>
+{% endblock %}
+
+
+{% block maincontent %}
+
+<h2>{{event}}: Add Recap</h2>
+<form action="." method="post" enctype="multipart/form-data" id="eventForm">{% csrf_token %}
+{{form.errors}}
+<p>
+<label for="id_name">What happened at the event?</label>
+ {% if form.recap.errors %}<span class="error">{{ form.recap.errors|join:", "}}</span>{% endif %}
+ {{ form.recap }}{{form.recap.help_text}}
+ </p>
+ <p class="formFloat">
+<label for="id_entrants"># of entrants</label>
+ {% if form.entrants.errors %}<span class="error">{{ form.entrants.errors|join:", "}}</span>{% endif %}
+ {{ form.entrants }}{{form.entrants.help_text}}
+ </p>
+  <p class="formFloat">
+<label for="id_spectators"># of spectators</label>
+ {% if form.spectators.errors %}<span class="error">{{ form.spectators.errors|join:", "}}</span>{% endif %}
+ {{ form.spectators }}{{form.spectators.help_text}}
+ </p>
+<p class="clear">
+					<label for="id_recap_photo_1">Event photos:</label>
+					{{ form.recap_photo_1 }} {% if event.recap_photo_1 %}(Currently: <a href="/media/{{event.recap_photo_1}}/">{{event.recap_photo_1}}</a>){% endif %}
+					{{ form.recap_photo_1_file }}
+					<br />
+					{{ form.recap_photo_2 }} {% if event.recap_photo_2 %}(Currently: <a href="/media/{{event.recap_photo_2}}/">{{event.recap_photo_2}}</a>){% endif %}
+					{{ form.recap_photo_2_file }}
+					<br />
+					{{ form.recap_photo_3 }} {% if event.recap_photo_3 %}(Currently: <a href="/media/{{event.recap_photo_3}}/">{{event.recap_photo_3}}</a>){% endif %}
+					{{ form.recap_photo_3_file }}
+					<br />
+					{{ form.recap_photo_4 }} {% if event.recap_photo_4 %}(Currently: <a href="/media/{{event.recap_photo_4}}/">{{event.recap_photo_4}}</a>){% endif %}
+					{{ form.recap_photo_4_file }}
+					<br />
+					{{ form.recap_photo_5 }} {% if event.recap_photo_5 %}(Currently: <a href="/media/{{event.recap_photo_5}}/">{{event.recap_photo_5}}</a>){% endif %}
+					{{ form.recap_photo_5_file }}
+					<br />
+				<span class="help">Please upload photos in jpg format&mdash;no BMP files! If you are happy with your previously uploaded image(s), you do not have to re-upload.</span>
+					{% if form.image.errors %}
+						<p class="error">{{ form.recap_photo_1.errors|join:", "}}</p>
+					{% endif %}
+					<div id="exp"></div>
+				</p>
+		<input type="hidden" id="id_owner" name="owner" value="{{object.owner.id}}" />
+					<input type="hidden" id="id_sites" name="sites" value="{% firstof event.sites.all.0.id site.id %}" />
+					<input type="hidden" id="id_submitted_by" name="submitted_by" value="{{event.submitted_by.id}}" />
+					<input type="hidden" id="id_name" name="name" value="{{event.name}}" />
+					<input type="hidden" id="id_start_date" name="start_date" value="{{event.start_date}}" />
+					<input type="hidden" id="id_end_date" name="end_date" value="{{event.end_date}}" />
+					<input type="hidden" id="id_region" name="region" value="{{event.region}}" />
+					<input type="hidden" id="id_address" name="address" value="{{event.address}}" />
+					<input type="hidden" id="id_city" name="city" value="{{event.city}}" />
+					<input type="hidden" id="id_state" name="state" value="{{event.state}}" />
+					<input type="hidden" id="id_geocode" name="geocode" value="{{event.geocode}}" />
+					<input type="hidden" id="id_website" name="website" value="{{event.website}}" />
+					<input type="hidden" id="id_phone" name="phone" value="{{event.phone}}" />
+					<input type="hidden" id="id_phone" name="phone" value="{{event.phone}}" />
+					<input type="hidden" id="id_club" name="club" value="{{event.club.id}}" />
+					<input type="hidden" id="id_goodies" name="goodies" value="{{event.goodies}}" />
+					<input type="hidden" id="id_approved" name="approved" value="{{event.approved}}" />
+					<input type="hidden" id="id_featured" name="featured" value="{{event.featured}}" />
+					<input type="hidden" id="id_staff_attending" name="staff_attending" value="{{event.staff_attending}}" />
+<input type="submit" value="Add an event recap" />
+<a href="/help/uploading/?keepThis=true&amp;TB_iframe=true&amp;height=400&amp;width=520" class="thickbox help">Photo Uploading Tips</a>
+</form>
+{% endblock %}
+

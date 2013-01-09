@@ -1,0 +1,16 @@
+
+static/.DS_Store
+
+templates/.DS_Store
+
+templates/happenings/.DS_Store
+
+templates/happenings/crud/.DS_Store
+
+*.pyc
+
+templatetags/.DS_Store
+
+static/css/.DS_Store
+
+.DS_Store

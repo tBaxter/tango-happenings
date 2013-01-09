@@ -1,0 +1,43 @@
+{% extends "happenings/event_detail.html" %}
+{% load typogrify markup %}
+
+{% block title %}{{ object.name }} Attendees: {%e ndblock %}
+
+{% block content_top_inner %}
+  <p>
+    We're all very important people, right? 
+    Here's some of the folks from around the site you might run into at 
+    {{ object.name|typogrify }}.
+  </p>
+  {% if user.is_authenticated %}
+    <h3>
+      <a href="{% url 'attending_add' object.id %}" class="attend add button">
+        Add me to the list
+      </a>
+    </h3>
+  {% endif %}
+{% endblock %}
+
+{% block content %}
+  {% csrf_token %}
+  <h1>Who you might see at {{ object.name|typogrify }}</h1>
+  <ul class="columned four-col">
+    {% for u in event.attending.all %}
+      <li>
+        <h4>
+          <a href="{{ u.get_absolute_url }}">
+            <img src="/media/{{ u.avatar }}" class="avatar" alt="" />
+            {{ u.preferred_name}}
+          </a>
+        </h4>
+        <p>
+          {% if u.first_name and u.last_name %}
+            {{ u.first_name }} {{ u.last_name }}<br>
+          {% endif %}
+          <span class="note">{{ u.city }}{% if u.state %}, {{ u.state }}{% endif %}</span>
+        </p>
+      </li>
+    {% endfor %}
+  </ul>
+{% endblock %}
+  

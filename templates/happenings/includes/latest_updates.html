@@ -1,0 +1,57 @@
+{% load markup typogrify %}
+
+{% with object.get_latest_updates as obj_updates %}
+  {% if obj_updates.count %}
+    <h2 class="kicker">
+      <a href="{% url 'event_update_list' object.slug %}">
+        <span>{{ obj_updates.count }}</span> 
+        {% if not object.ended %}Latest {% endif %}
+        Update{{ obj_updates.count|pluralize }}
+      </a>
+    </h2>
+  <div{% if obj_updates.count != 1 %} class="columned phi" id="more_articles"{% endif %}>
+  {% for update in obj_updates.updates|slice:"1" %}
+    <article>
+      <h2>
+      <a href="{{ update.get_absolute_url }}">
+        {{ update.title }}
+      </a>
+      </h2>
+      {% if update.has_image %}
+        <img src="{{ update.get_image.image.extra_thumbnails.t_360u }}">
+      {% endif %}
+      <time datetime="{{ update.pub_time|date:"Y-m-d" }}" title="{{ update.pub_time|date:"c" }}Z" pubdate="pubdate" class="meta updated right">
+        <span class="t">{{ update.pub_time|date:"f a" }}</span>
+        <span class="mo">{{ update.pub_time|date:"N" }}</span>
+        <span class="d">{{ update.pub_time|date:"j" }}</span>
+        {% if current_year and current_year != update.pub_time.year %}
+          <span class="y">{{ update.pub_time.year }}</span>
+        {% endif %}
+      </time>
+      <p class="author vcard">
+        <span class="email fn">
+          {{ update.author.preferred_name }}
+        </span>
+      </p>
+      {% if obj_updates.count = 1 %}
+        {{ update.update|markdown|typogrify }}
+      {% else %}
+        {{ update.update|striptags|truncatewords:"50"|markdown|typogrify }}
+      {% endif %}
+    </article>
+  {% endfor %}
+  {% if obj_updates.count > 1 %}
+     <ul class="fancy">
+       {% for update in obj_updates.updates|slice:"1:" %}
+         <li> <a href="{{ update.get_absolute_url }}">
+        {{ update.title }}
+      </a></li>
+       {% endfor %}
+       <li><a href="{% url 'event_update_list' object.slug %}" class="button">
+        See all {{ obj_updates.count }} updates
+      </a></li>
+     </ul>
+  {% endif %}
+  </div>
+  {% endif %}
+{% endwith %}

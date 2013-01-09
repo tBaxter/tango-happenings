@@ -1,0 +1,29 @@
+{% extends "happenings/base.html" %}
+
+{% block title %}Add an event to {% endblock %}
+
+{% block extrahead %}
+  {{ block.super }}
+    <link rel="stylesheet" href="{{ STATIC_URL }}css/pickadate.css">
+{% endblock %}
+
+{% block content_top_inner %}
+  <h1>Add your event</h1>
+{% endblock %}
+
+{% block content %}
+{% if user.is_authenticated %}
+  <div class="boxedform">
+    <form action="/events/add/" enctype="multipart/form-data" method="post" class="">{% csrf_token %}
+      {{ form.as_p}}
+      <p class="submithold"><input type="submit" value="Add your event!"></p>
+    </form> 
+  </div>
+  {% else %}
+    <div class="screen">
+      <h2><a href="/login/" class="button">Sign in</a> to add your event</h2>
+    </div>
+  {% endif %}
+{% endblock %}
+
+
