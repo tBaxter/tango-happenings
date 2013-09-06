@@ -1,5 +1,5 @@
 {% extends "happenings/event_detail.html" %}
-{% load cache markup timesince_filters typogrify %}
+{% load cache typogrify_tags %}
 
 {% block content %}
   <h2 class="kicker"><a href="{{ event.get_absolute_url }}">{{ event.name }}</a> updates</h2>
@@ -27,9 +27,9 @@
                     <span class="d">{{ obj.pub_time|date:"j" }}</span>
                   </time>
                   {% if main_image %}
-                    {{ obj.update|safe|markdown|truncatewords:"100" }}
+                    {{ obj.update_formatted|striptags|truncatewords:"100" }}
                   {% else %}
-                    {{ obj.update|safe|markdown|truncatewords:"150" }}
+                    {{ obj.update_formatted|striptags|truncatewords:"150" }}
                   {% endif %}
                 </section>
               {% endwith %}
@@ -62,9 +62,9 @@
   <article>
     <a href="{{ obj.get_absolute_url }}">
       {% if obj.get_image %}<figure class="right" data-deferred-load="{{ obj.get_image.image.extra_thumbnails.t_180u }}"></figure>{% endif %}
-      <hgroup>
+      <header>
         <h1>{{ obj.title }}</h1>        
-      </hgroup>
+      </header>
       <time datetime="{{ obj.pub_time|date:"Y-m-d" }}" pubdate="pubdate" class="meta">
         <span class="t">{{ obj.pub_time|date:"f a" }}</span>
         <span class="mo">{{ obj.pub_time|date:"N" }}</span>

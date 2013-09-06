@@ -1,7 +1,5 @@
 {% extends "happenings/event_detail.html" %}
 
-{% load cache markup %}
-
 {% block extra_title %}{{ block.super }} photos{% endblock %}
 
 {% block bodyid %}gallery_detail{% endblock %}
@@ -10,58 +8,27 @@
   <link rel="stylesheet" href="{{ STATIC_URL }}css/gallery.css">
 {% endblock %}
 
-{% block extrascript %}
-  <script src="{{ STATIC_URL }}js/gallery.js?v=34"></script>
-{% endblock %}
-
-{% block content_top_inner %}
-  <h1>{{ event.name }}</h1>
-{% endblock %}
-
 {% block content %}
-{% with event.get_all_images as image_list %}
-<div id="gallery_thumbs_hold">
-  <ul id="gallery_thumbs">
-    {% for object in image_list %}
-      <li id="thumb_{{ forloop.counter }}" data-deferred-thumbs="{{ object.image.thumbnail }}"></li>
-    {% endfor %}
-  </ul>
-</div><!-- /gallery_thumbs_hold -->
-	
-<div id="gallery_slides_hold">
-  <div id="gallery_slides">
-    {% for object in image_list %}
-      {% if forloop.counter == 1 %}{# load the first, defer loading of subsequent #}
-        <figure id="image_{{ forloop.counter }}">
-          <img src="{{ object.image.extra_thumbnails.t_640 }}">
-      {% else %}
-        <figure id="image_{{ forloop.counter }}" data-load-on-demand="{{ object.image.extra_thumbnails.t_640 }}">
-      {% endif %}
-        <figcaption>
-          <div class="caption">{{ object.caption }}</div>
-          <span class="byline">{{ object.byline }}</span>
-        </figcaption>
-      </figure>
-    {% endfor %}
-  </div>
-</div> <!-- /slides -->
+  <h1>{{ object.name }} Photos</h1>
+  {% with object.get_all_images as photoset %}
+    {% include "includes/photoset/photoset_photos.html" %}
+  {% endwith %}
+{% endblock %}
 
-<div id="gallery_info">
-  <h1>{{ event.name }}</h1>
-  {{ gallery.summary|markdown }}
-  {% if gallery.gallery_credit %}
-    <p class="meta">{{ gallery.gallery_credit }}</p>
-  {% endif %}
-  <nav class="pager">
-    <ul>    
-      <li class="prev" title="Previous"><span>previous</span></li>
-      <li class="current">
-        <span id="gallery_index">1</span> of {{ image_list|length }}
-      </li>
-      <li class="next" title="Next"><span>next</span></li>
-    </ul>
-  </nav>
-  <div id="caption_hold"></div>
-</div>
-{% endwith %}
+{% block aside %}
+  {{ block.super }}
+  <div id="photoset_info" class="sticky">
+    <nav class="pager">
+      <ul>
+        <li class="prev" title="Previous"><span>previous</span></li>
+        <li class="current">
+          <span id="photoset_index">1</span> of {{ event.get_all_images|length }}
+        </li>
+        <li class="next" title="Next"><span>next</span></li>
+      </ul>
+    </nav>
+    <div id="caption_hold"></div>
+  </div>
+  <hr class="fancy">
+  {% block event_sidebars %}{% endblock %}
 {% endblock %}

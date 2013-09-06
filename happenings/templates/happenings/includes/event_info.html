@@ -1,34 +1,16 @@
-{% load markup %}
-<article class="vevent{% if object_list and object.ended %} ended{% endif %}" data-geocode="{{ object.geocode }}">
+{% load typogrify_tags site_tags %}
+
+<article class="vevent{% if object_list and object.ended %} diminish{% endif %}" data-geocode="{{ object.geocode }}">
   <section class="event_times">
     {% ifchanged object.start_date %}
-      <time datetime="{{ object.start_date|date:"Y-m-d" }}{% if object.start_time %}T{{ object.start_time|time:"H:i" }}Z{% endif %}" class="dtstart datebox">
-        {% with object.start_date as d %}
-          <a href="{% url 'events_for_day' m=d|date:"m" d=d|date:"d" y=d|date:"Y" %}" title="View all events for {{ d }}">
-            <span class="w">{{ d|date:"l" }}</span>
-            <span class="mo">{{ d|date:"N" }}</span>
-            <span class="d">{{ d|date:"j" }}</span>
-            {% if d.year != year %}
-              <span class="y">{{ d.year }}</span>
-            {% endif %}
-           </a>
-        {% endwith %}
-      </time>
-      
+      {% with object.start_date as d %}
+        <a href="{% url 'events_for_day' m=d|date:"m" d=d|date:"d" y=d|date:"Y" %}">
+          {% format_time d object.start_time 'datebox' 'dtstart' %}
+        </a>
+      {% endwith %}
       {% if object.end_date and object.start_date != object.end_date %}
         <span class="hide">-</span>
-        <time datetime="{{ object.end_date|date:"Y-m-d" }}" class="dtend datebox">
-          {% with object.end_date as d %}
-            <a href="{% url 'events_for_day' m=d|date:"m" d=d|date:"d" y=d|date:"Y" %}" title="View all events for {{ d }}">
-            <span class="w">{{ d|date:"l" }}</span>
-            <span class="mo">{{ d|date:"N" }}</span>
-            <span class="d">{{ d|date:"j" }}</span>
-            {% if d.year != year %}
-              <span class="y">{{ d.year }}</span>
-            {% endif %}
-           </a>
-          {% endwith %}
-        </time>
+        {% format_time object.end_date object.end_time 'datebox' 'dtend' %}
       {% endif %}
     {% else %}
       <span class="dtstart hide" title="{{ object.start_date|date:"Y-m-d" }}">
@@ -37,6 +19,9 @@
     {% endifchanged %}
   </section>
   <section class="event_info">
+    {% if event.subhead %}
+      <h3 class="kicker">{{ event.subhead|typogrify }}</h3>
+    {% endif %}
     <h2 class="summary{% if object.featured %} featured-event{% endif %}">
       <a href="{{ object.get_absolute_url }}" class="url">{{ object.name }}</a>
     </h2>
@@ -48,21 +33,22 @@
     {% endif %}
     <div class="hcard">
       {% if object.venue %}<h3 class="fn org kicker">{{ object.venue }}</h3>{% endif %}
-      <span class="adr meta location">
+      <span class="adr meta location block">
         {% if object.address %}
           <span class="street-address">{{ object.address }}</span>, 
         {% endif %}
         <span class="locality">{{ object.city }}</span>
         <span class="region">{{ object.state }}</span>
-        <span class="country-name">US</span>
         {% if object.phone %}<span class="tel">{{ object.phone }}</span>{% endif %}
       </span>
-    <div class="description">
-      {% if object_list %}
-        <p>{{ object.info|striptags|truncatewords:"50" }}</p>
-      {% else %}
-        {{ object.info|markdown }}
-      {% endif %}
+      <div class="description">
+        {% if not object.ended %}
+          {% if object_list %}
+            <p>{{ object.info|striptags|truncatewords:"50" }}</p>
+          {% else %}
+            {{ object.info_formatted|typogrify }}
+          {% endif %}
+        {% endif %}
       </div>
     </div><!-- /hcard -->
   </section>

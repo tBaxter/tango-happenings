@@ -152,8 +152,8 @@ function addEventHashToGlobalDateHash(eventHash, dateInfo, startDay, endDay) {
 
 //Create Table of the specified Month for the specified Year, with events.
 function makeMonthTable (monthHash, year, month) {
-  currentMonthLength = getMonthLength(year, month);
-  previousMonthLength = getMonthLength(year, month-1);
+  var currentMonthLength = getMonthLength(year, month);
+  var previousMonthLength = getMonthLength(year, month-1);
   var today      = new Date();
   var todayYear  = today.getFullYear();
   var todayMonth = today.getMonth() + 1;
@@ -222,11 +222,15 @@ function makeMonthTable (monthHash, year, month) {
   var row = tbody.appendChild(document.createElement("tr"));
   // Loop through empty Days before first Day of Month and fill with 'outOfRange' Cells.
   for (i = 0; i < dayOfFirstOfMonth; i++) {
-    $(row).append('<td class="outOfRange"><div class="calDayLabel"> ' + (previousMonthLength - (dayOfFirstOfMonth - i-1)) + '</div></td>');
+    var dayNum = (previousMonthLength - (dayOfFirstOfMonth - i-1));
+    if (isNaN(dayNum)) {
+      dayNum = '';
+    }
+    $(row).append('<td class="outOfRange"><div class="calDayLabel"> ' + dayNum + '</div></td>');
   }
   
   for (i = 1; i <= currentMonthLength; i++) {
-    if (row.childNodes.length == 7) {
+    if (row.childNodes.length === 7) {
       row = tbody.appendChild(document.createElement("tr"));
     }
     if(row.childNodes.length === 0 || row.childNodes.length === 6) {
@@ -235,7 +239,7 @@ function makeMonthTable (monthHash, year, month) {
     row.appendChild(days[i]);
   }
   // fill in next month's days to end
-  newmonth = 1;
+  var newmonth = 1;
   while (row.childNodes.length < 7) {
       $(row).append('<td class="outOfRange"><div class="calDayLabel">' + newmonth + '</div></td>');
   newmonth++;

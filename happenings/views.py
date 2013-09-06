@@ -2,18 +2,20 @@ import calendar
 import datetime
 import vobject
 
+from django import forms
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
+from django.contrib import messages
 from django.core.paginator import Paginator, EmptyPage
+from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect, HttpResponse
 from django.shortcuts import get_object_or_404, render
 from django.template.defaultfilters import slugify
 from django.utils.decorators import method_decorator
 from django.views.generic import ListView, DetailView, UpdateView
 
-from happenings.forms import GiveawayResponseForm, PlayListForm, MemoriesForm, EventForm
-from happenings.models import Event, Update, Giveaway, GiveawayResponse, PlaylistItem, Image, ExtraInfo
-
+from .forms import GiveawayResponseForm, PlayListForm, MemoryForm, AddEventForm, EventRecapForm, EventUpdateForm
+from .models import Event, Update, Giveaway, GiveawayResponse, PlaylistItem, Image, ExtraInfo, Memory
 
 key = getattr(settings, 'GMAP_KEY', None)
 
@@ -28,16 +30,18 @@ class EventList(ListView):
 
     def get_queryset(self):
         now = datetime.date.today()
-        offset = now - datetime.timedelta(days=10)
+        offset = now - datetime.timedelta(days=5)
         events = Event.objects.filter(approved=True, start_date__gte=offset).order_by('start_date')
         if 'region' in self.kwargs:
+            self.region = self.kwargs['region']
             events = events.filter(region=self.kwargs['region'])
         return events
 
-    #def get_context_data(self, **kwargs):
-    #    context = super(EventList, self).get_context_data(**kwargs)
-    #    if 'region' in kwargs:
-    #        context['region'] = kwargs['region']
+    def get_context_data(self, **kwargs):
+        context = super(EventList, self).get_context_data(**kwargs)
+        context['region'] = self.region
+        return context
+event_list = EventList.as_view()
 
 
 class EventsForPeriod(EventList):
@@ -68,8 +72,51 @@ class EventsForPeriod(EventList):
         context.update({
             'cal_date' : date,
             'cal_type' : cal_type
-            })
+        })
         return context
+events_for_period = EventsForPeriod.as_view()
+
+
+class EventDetail(DetailView):
+    queryset = Event.objects.all()
+
+    def get_context_data(self, **kwargs):
+        context = super(EventDetail, self).get_context_data(**kwargs)
+        context['key'] = key
+        return context
+event_detail = EventDetail.as_view()
+
+
+class EventUpdate(DetailView):
+    """
+    Detail page for an Event.Update.
+    """
+    template_name = "happenings/updates/update_detail.html"
+
+    def dispatch(self, request, *args, **kwargs):
+        self.event_slug = kwargs.get('event_slug', False)
+        self.slug = kwargs.get('slug', False)
+        self.event = get_object_or_404(Event, slug=self.event_slug)
+        return super(EventUpdate, self).dispatch(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super(EventUpdate, self).get_context_data(**kwargs)
+        context['event'] = self.event
+        return context
+
+    def get_object(self):
+        return get_object_or_404(Update, pk=self.kwargs.get('pk', None))
+
+
+class ExtraInfoDetail(EventUpdate):
+    """
+    Detail page for an Event.ExtraInfo, if it's not a sidebar.
+    """
+    queryset = ExtraInfo.objects.filter(is_sidebar=False)
+    template_name = "happenings/event_extra.html"
+
+    def get_object(self):
+        return get_object_or_404(ExtraInfo, slug=self.slug)
 
 
 def create_ical(request, slug):
@@ -106,10 +153,10 @@ def event_all_comments_list(request, slug):
     """
     event    = get_object_or_404(Event, slug=slug)
     comments = event.get_all_comments()
+    page = int(request.GET.get('page', 1))
     is_paginated = False
     if comments:
         paginator = Paginator(comments, 50)  # Show 50 comments per page
-        page = int(request.GET.get('page', 1))
         try:
             comments = paginator.page(page)
         except EmptyPage:
@@ -118,12 +165,12 @@ def event_all_comments_list(request, slug):
         is_paginated = comments.has_other_pages()
 
     return render(request, 'happenings/event_comments.html', {
+        "event": event,
         "comment_list": comments,
-        "object": event,
-        "page_obj": comments,
-        "is_paginated": is_paginated
-        }
-    )
+        "page_obj": page,
+        "is_paginated": is_paginated,
+        "key": key
+    })
 
 
 def event_update_list(request, slug):
@@ -147,15 +194,6 @@ def event_update_list(request, slug):
     })
 
 
-def event_update_detail(request, slug, pk):
-    event  = get_object_or_404(Event, slug=slug)
-    update = get_object_or_404(Update, id=pk, event=event)
-    return render(request, "happenings/updates/update_detail.html", {
-        'update' : update,
-        'event' : event
-    })
-
-
 def video_list(request, slug):
     """
     Displays list of videos for given event.
@@ -167,29 +205,12 @@ def video_list(request, slug):
     })
 
 
-class ExtraInfoDetail(DetailView):
-    """
-    Creates a detail page for an Event.ExtraInfo, if it's not a sidebar.
-    """
-    queryset = ExtraInfo.objects.filter(is_sidebar=False)
-    template_name = "happenings/event_extra.html"
-
-    def dispatch(self, request, *args, **kwargs):
-        self.event_slug = kwargs.get('event_slug', False)
-        self.slug = kwargs.get('slug', False)
-        return super(ExtraInfoDetail, self).dispatch(request, *args, **kwargs)
-
-    def get_object(self):
-        self.event = get_object_or_404(Event, slug=self.event_slug)
-        return get_object_or_404(ExtraInfo, slug=self.slug)
-
-
 def giveaways_for_event(request, slug):
     event = get_object_or_404(Event, slug=slug)
     giveaways = Giveaway.objects.filter(event__slug=slug)
     return render(request, 'happenings/giveaways/giveaway_list.html', {
-      'event': event,
-      'giveaways': giveaways,
+        'event': event,
+        'giveaways': giveaways,
     })
 
 
@@ -202,8 +223,8 @@ def giveaway_winners_for_event(request, slug):
         template_name = 'happenings/giveaways/winners_export.html'
 
     return render(request, template_name, {
-      'event': event,
-      'winners': winners,
+        'event': event,
+        'winners': winners,
     })
 
 
@@ -219,121 +240,138 @@ def playlist(request, slug):
         if form.is_valid():
             form.save()
     return render(request, 'happenings/playlist.html', {
-      'form': form,
-      'playlist_items': playlist,
-      'event': event
+        'form': form,
+        'playlist_items': playlist,
+        'event': event
     })
-
-
-
 
 
 @login_required
 def add_event(request):
     """ Public form to add an event. """
-    approval_msg = ""
-    form = EventForm()
-
-    if request.method == 'POST':
-        submission = request.POST.copy()
-        submission['sites'] = settings.SITE_ID
-        submission['submitted_by'] = request.user.id
-        submission['approved'] = True
-        submission['slug'] = slugify(submission['name'])
-
-        form = EventForm(submission)
-        if Event.objects.filter(name=submission['name'], start_date=submission['start_date']).count():
-            form.errors['name'] = '<ul><li>Event is already in database</li></ul>'
-        if form.is_valid():
-            form.save()
-            approval_msg = "Your event has successfully been submitted. "
-    return render(request, 'happenings/crud/add_event.html', {'form': form, 'approval_msg': approval_msg})
+    form = AddEventForm(request.POST or None)
+    if form.is_valid():
+        instance = form.save(commit=False)
+        instance.sites = settings.SITE_ID
+        instance.submitted_by = request.user
+        instance.approved = True
+        instance.slug = slugify(instance.name)
+        instance.save()
+        messages.success(request, 'Your event has been added.')
+        return HttpResponseRedirect(reverse('events_index'))
+    return render(request, 'happenings/event_form.html', {'form': form, 'form_title': 'Add an event'})
 
 
-class AddRecap(UpdateView):
+class EditEvent(UpdateView):
     model = Event
-    template_name = "happenings/add_recap.html"
+    form_class = EventUpdateForm
+    template_name = "happenings/event_form.html"
 
     @method_decorator(login_required)
     def dispatch(self, *args, **kwargs):
-        return super(AddRecap, self).dispatch(*args, **kwargs)
+        user = self.request.user
+        if user.is_staff is False and user != self.get_object().submitted_by:
+            raise forms.ValidationError("You don't have permission to edit this event.")
+        return super(EditEvent, self).dispatch(*args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super(EditEvent, self).get_context_data(**kwargs)
+        context['form_title'] = "Edit your event"
+        return context
+edit_event = EditEvent.as_view()
 
 
-def add_attending(request, event_id):
-    event = get_object_or_404(Event, id=event_id)
-    user = request.user
-    event.attending.add(user)
+class AddRecap(EditEvent):
+    form_class = EventRecapForm
+add_recap = AddRecap.as_view()
+
+
+@login_required
+def add_attending(request, slug):
+    event = get_object_or_404(Event, slug=slug)
+    event.attending.add(request.user.id)
     event.save()
     if request.is_ajax():
-        return HttpResponse(user.preferred_name, mimetype="text/html")
-    return render(request, 'happenings/special_event_attending.html', {
-      'obj': 'added',
-      'event': event
-    })
+        return HttpResponse(request.user.display_name, mimetype="text/html")
+    return HttpResponseRedirect(reverse('event_attending_list', args=[event.slug]))
 
 
 def record_giveaway_response(request, giveaway_id):
     giveaway = get_object_or_404(Giveaway, id=giveaway_id)
-    form = GiveawayResponseForm()
-    if request.method == 'POST':
-        data = request.POST.copy()
-        data['respondent'] = request.user.id
-        data['question'] = giveaway.id
-        # form has been submitted
-        form = GiveawayResponseForm(data, request.FILES)
-        if form.is_valid():
-            response = form.save()
-            response.respondent = request.user
-            response.save()
-            return HttpResponseRedirect('/happenings/giveaway/response-recorded/')
-        else:
-            return HttpResponse('error')
-    return HttpResponseRedirect(giveaway.update_set.all()[0].get_absolute_url())
+    form = GiveawayResponseForm(request.POST or None)
+    if form.is_valid():
+        new_instance = form.save()
+        new_instance.giveaway = giveaway
+        new_instance.respondent = request.user
+        new_instance.save()
+        messages.sucess(request, 'Your response has been recorded.')
+    try:
+        return HttpResponseRedirect(giveaway.update_set.all()[0].get_absolute_url())
+    except:
+        return HttpResponseRedirect(reverse('events_index'))
 
 
 def add_memory(request, slug):
     """ Adds a memory to an event. """
-    form = MemoriesForm()
     event = get_object_or_404(Event, slug=slug)
+    form = MemoryForm(request.POST or None, request.FILES or None)
+    if form.is_valid():
+        instance = form.save(commit=False)
+        instance.author = request.user
+        instance.event = event
+        instance.save()
+        msg = "Your thoughts were added. "
+        if request.FILES:
+            photo_list = request.FILES.getlist('upload')
+            photo_count = len(photo_list)
+            for upload_file in photo_list:
+                process_upload(upload_file, instance, form, event, request)
+            if photo_count > 1:
+                msg += "{} images were added and should appear soon.".format(photo_count)
+            else:
+                msg += "{} image was added and should appear soon.".format(photo_count)
+        messages.success(request, msg)
+        return HttpResponseRedirect('../')
+    return render(request, 'happenings/add_memories.html', {'form': form, 'event': event})
 
-    if request.method == 'POST':
-        submission = request.POST.copy()
-        submission['author'] = request.user.id
-        submission['event']  = event.id
-        form = MemoriesForm(submission)
-        if form.is_valid():
-            newform = form.save()
-            if request.FILES:
-                for upload_file in request.FILES.getlist('upload'):
-                    process_upload(upload_file, newform, form, event, request.user)
-            return HttpResponseRedirect('../')
-    return render(request, 'happenings/add_memories.html', {
-      'form': form,
-      'user': request.user
-    })
+
+class MemoryDetail(DetailView):
+    """
+    Creates a detail page for an Event.Memory.
+    """
+    template_name = "happenings/memory_detail.html"
+    queryset = Memory.objects.all()
+
+    def dispatch(self, request, *args, **kwargs):
+        self.event_slug = kwargs.get('event_slug', False)
+        self.slug = kwargs.get('slug', False)
+        self.event = get_object_or_404(Event, slug=self.event_slug)
+        return super(MemoryDetail, self).dispatch(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super(MemoryDetail, self).get_context_data(**kwargs)
+        context['event'] = self.event
+        return context
+
+    def get_object(self):
+        return get_object_or_404(Memory, pk=self.kwargs.get('pk', None))
 
 
-def process_upload(upload_file, newform, form, event, user, status=''):
+def process_upload(upload_file, instance, form, event, request):
     """
     Helper function that actually processes and saves the upload(s).
     Segregated out for readability.
     """
-    caption = ''
-    status += "beginning upload processing. Gathering and normalizing fields....<br>"
-    if 'caption' in form.cleaned_data:
-        caption = form.cleaned_data['caption']
+    caption = form.cleaned_data.get('caption')
     upload_name = upload_file.name.lower()
-    status += "File is %s. Checking for single file upload or bulk upload... <br>" % upload_name
     if upload_name.endswith('.jpg') or upload_name.endswith('.jpeg'):
-        status += "Found jpg. Attempting to save... <br>"
         try:
             upload = Image(
-              event   = event,
-              image   = upload_file,
-              caption = caption,
+                event   = event,
+                image   = upload_file,
+                caption = caption,
             )
             upload.save()
-            newform.photos.add(upload)
-            status += "Saved and uploaded jpg."
-        except Exception, inst:
-            status += "Error saving image: %s" % (inst)
+            instance.photos.add(upload)
+        except Exception as error:
+            messages.error(request, 'Error saving image: {}.'.format(error))

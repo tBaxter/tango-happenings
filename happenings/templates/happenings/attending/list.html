@@ -1,33 +1,18 @@
 {% extends "happenings/event_detail.html" %}
-{% load typogrify markup %}
+{% load typogrify_tags %}
 
-{% block title %}{{ object.name }} Attendees: {%e ndblock %}
-
-{% block content_top_inner %}
-  <p>
-    We're all very important people, right? 
-    Here's some of the folks from around the site you might run into at 
-    {{ object.name|typogrify }}.
-  </p>
-  {% if user.is_authenticated %}
-    <h3>
-      <a href="{% url 'attending_add' object.id %}" class="attend add button">
-        Add me to the list
-      </a>
-    </h3>
-  {% endif %}
-{% endblock %}
+{% block title %}{{ object.name }} Attendees: {% endblock %}
 
 {% block content %}
   {% csrf_token %}
   <h1>Who you might see at {{ object.name|typogrify }}</h1>
   <ul class="columned four-col">
-    {% for u in event.attending.all %}
+    {% for u in object.attending.all %}
       <li>
         <h4>
           <a href="{{ u.get_absolute_url }}">
             <img src="/media/{{ u.avatar }}" class="avatar" alt="" />
-            {{ u.preferred_name}}
+            {{ u.display_name }}
           </a>
         </h4>
         <p>
@@ -39,5 +24,21 @@
       </li>
     {% endfor %}
   </ul>
+{% endblock %}
+
+{% block aside %}
+  <p>
+    We're all very important people, right? 
+    Here's some of the folks from around the site you might run into at 
+    {{ object.name|typogrify }}.
+  </p>
+  {% if authenticated_request %}
+    <h3>
+      <a href="{% url 'attending_add' object.slug %}" class="attend add button">
+        Add me to the list
+      </a>
+    </h3>
+  {% endif %}
+  {{ block.super }}
 {% endblock %}
   

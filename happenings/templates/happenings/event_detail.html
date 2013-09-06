@@ -1,261 +1,157 @@
 {% extends "happenings/base.html" %}
 
-{% load markup typogrify cache socialize_tags timesince_filters event_tags humanize %}
+{% load typogrify_tags cache social_tags event_tags humanize %}
 
 {% block extra_title %}Events: {{ object.name }}{% endblock %}
 
 {% block bodyclass %}detail{% endblock %}
 
 {% block content %}
-    <article class="vcalendar">
-      <section class="content-detail">
-        {% include "includes/top_assets.html" %}
+  <article class="vcalendar">
+    <section class="content-body">
+      {% include "includes/top_assets.html" %}
+      {% if object.recap %}
+        <h1>{{ object.name }}</h1>
+        {{ object.recap_formatted|typogrify }}
+      {% else %}
+        {% include "happenings/includes/event_info.html" %}
+      {% endif %}
+      {% social_links object user authenticated_request %}
+    </section>
 
-        {% if object.recap %}
-          {{ object.recap|markdown|typogrify }}
-        {% else %}
-          {% include "happenings/includes/event_info.html" %}
+    <hr class="fancy">
+
+    {% include "happenings/includes/latest_updates.html" %}
+
+    {% if object.has_started %}
+      {% with object.memory_set.count as memory_count %}
+        {% if memory_count %}
+          <hr class="fancy">
         {% endif %}
-
-        {% include "happenings/includes/latest_updates.html" %}
-
-        {% with object.get_giveaways as giveaways %}
-          {% with giveaways|length as g_count %}
-            {% if g_count %}
-              <section id="giveaways">
-                <h1>
-                  Current Giveaways
-                </h1>
-                {% for giveaway in giveaways %}
-                  {% if user.is_authenticated %}
-                    {% render_giveaway_for_update update giveaway %}
-                  {% else %}
-                    <h2 class="kicker">
-                      For {{ giveaway.number|apnumber }} {{ giveaway.prize }}{{giveaway.number|pluralize }}, we're asking:
-                    </h2>
-                    <h3>{{ giveaway.question }}</h3>
-                    <a href="/login/?next={{ giveaway.get_absolute_url }}">Sign in to answer!</a>
-                  {% endif %}
-                  <p class="meta">
-                    {% if giveaway.giveawayresponse_set.count %}
-                      We have answers from {{ giveaway.giveawayresponse_set.all|join:", " }}.
-                    {% endif %}
-                    Winners will be posted when they have been decided.
-                  </p>
-                {% endfor %}
-              </section>
-            {% endif %}
-          {% endwith %}
-        {% endwith %}
-
-        {% if object.has_started %}
-          {% if user in object.attending.all %}
-            <a href="{% url 'add_memory' object.slug %}" class="right" title="Share your memories">✚ Add yours</a>
+        {% if user in object.attending.all %}
+          {% if memory_count == 0 %}
+            <h2>
+              <a href="{% url 'add_memory' object.slug %}" class="icon-add">
+                Share your memories
+              </a>
+            </h2>
+            <p>No one has shared any memories yet. You can be the first.</p>
           {% endif %}
-          <h2><a href="{{event.get_absolute_url}}memories/">Memories</a></h2>
-          {% if object.memories_set.count %}
-            <div class="columned two-col">
-              {% for m in object.memories_set.all|dictsortreversed:'id'|slice:"2" %}
+
+          {% if memory_count > 0 %}
+            <a href="{% url 'add_memory' object.slug %}" class="right" class="icon-add">
+              Add yours
+            </a>
+          {% endif %}
+        {% endif %} 
+
+        {% if memory_count > 0 %}
+          <h2>
+            <a href="{% url 'event_memories' object.slug %}">Memories</a>
+          </h2>
+          <div class="columned two-col">
+            {% for m in object.memory_set.all|dictsortreversed:'id'|slice:"2" %}
+              <a href="{{ m.get_absolute_url }}">
                 {% if m.thoughts %}
                   <p>{{ m.thoughts|truncatewords:"30" }}<br>
-                    <cite class="right">&ndash; {{ m.author.preferred_name }}
+                    <cite class="right">&ndash; {{ m.author.display_name }}</cite>
                   </p>
                 {% else %}
-                  <small>{{ m.author.preferred_name }} shared some photos</small>
+                  <small>{{ m.author.display_name }} shared some photos</small>
                 {% endif %}
-              {% endfor %}
-            </div>
-            <a href="{% url 'event_memories' object.slug %}">View all {{ object.memories_set.count }} memories</a>
-          {% endif %}
-        {% endif %}
-
-        {% block comments %}
-           <a href="{% url 'event_comments' object.slug %}" class="right">
-            <span class="right">{{ count }}</span>
-            View all comments
+              </a>
+            {% endfor %}
+          </div>
+          <a href="{% url 'event_memories' object.slug %}">
+            View all {{ memory_count }} memories
           </a>
-          {% include 'comments/inclusion/comments.html' %}
-        {% endblock %}
-      </section>
+        {% endif %}
+      {% endwith %}
+    {% endif %}
 
-      
-    </article>
-    <hr class="clear">
+    <hr class="fancy">
+
+    {% block comments %}
+      {% if object.comment_set.count %}
+        <a href="{% url 'event_comments' object.slug %}" class="right">
+          <span class="right">{{ count }}</span>
+          View all comments
+        </a>
+      {% endif %}
+      {% include 'includes/comments/comments.html' %}
+    {% endblock %}
+  </article>
+  <hr class="clear">
 {% endblock %}
 
 {% block aside %}
-  <section id="more_assets">
-    <ul class="fancy">
-      {% with event as object %}
-      {% with object.get_extra_pages as extra_pages %}
-        {% if extra_pages %}
-          {% for page in extra_pages %}
-            <li>
-              <a href="{% url 'special_event_extra' object.slug page.slug %}">
-                {{ page.title }}
-              </a>
-            </li>
-          {% endfor %}
-        {% endif %}
-      {% endwith %}
+  <ul class="fancy">
+    {% load_event_subnav event user %}
+  </ul>
 
-      {% if not object.has_started %}
-        <li>
-          <a href="{% url 'playlist' slug=object.slug %}">
-            <span class="right">{{ object.playlistitem_set.count }}</span>
-            Playlist suggestions</a>
-        </li>
-      {% endif %}
-
-      {% with object.update_set.count as u_count %}
-        {% if u_count %}
-          <li>
-            <a href="{% url 'event_update_list' object.slug %}">
-              <span class="right">{{ u_count }}</span>
-              Updates
-            </a>
-          </li>
-        {% endif %}
-      {% endwith %}
-
-      {% with object.get_all_comments|length as count %}
-        {% if count %}
-          <li>
-            <a href="{% url 'event_comments' object.slug %}">
-              <span class="right">{{ count }}</span>
-              All comments
-            </a>
-          </li>
-        {% endif %}
-      {% endwith %}
-
-      {% with object.giveaway_set.count as count %}
-        {% if count %}
-          <li>
-            <a href="{% url 'giveaways' object.slug %}">
-              <span class="right">{{ count }}</span>
-              Giveaways
-            </a>
-          </li>
-        {% endif %}
-      {% endwith %}
-
-      {% with object.get_all_images|length as i_count %}
-        {% if i_count %}
-          <li>
-            <a href="{% url 'event_slides' object.slug %}">
-              <span class="right">{{ i_count }}</span> Photos
-            </a>
-          </li>
-        {% endif %}
-      {% endwith %}
-
-
-      {% with object.eventvideo_set.count as count %}
-        {% if count %}
-          <li>
-            <a href="{% url 'event_video_list' object.slug %}">
-              <span class="right">{{ count }}</span> Video
-            </a>
-          </li>
-        {% endif %}
-      {% endwith %}
-
-      {% if not object.ended %}
-        <li><a href="{% url 'event_ical' object.slug %}">Add to your calendar</a></li>
-        <li>
-          <a href="{{ object.get_absolute_url }}map/">
-            <img src="/media/img/icons/iconic/gray_light/map_pin_fill_24x24.png" class="noscale right">
-            Map
-          </a>
-        <li>
-          <a href="{{ object.get_absolute_url }}attending/">Who's Going?</a>
-          {% if user.is_authenticated %}
-            <a href="{{ object.get_absolute_url }}attending/add/" class="right clearfix" title="Add me to the list">✚ I am</a>
-          {% endif %}
-        </li>
-        {% if object.offsite_tickets %}
-          <li><a href="{{ object.offsite_tickets }}">Get Tickets</a></li>
-        {% endif %}
-        {% if object.hotel %}
-          <li><a href="{{ object.get_absolute_url }}hotel/">Host Hotel</a></li>
-        {% endif %}
-        {% if event.schedule.count %}
-          <li><a href="{{ object.get_absolute_url}}schedule/">Schedule</a></li>
-        {% endif %}
-      {% endif %}
-      
-      {% if object.has_started %}
-        {% if object.memories_set.count %}
-          <li>
-            <a href="{{event.get_absolute_url}}memories/add/" class="right button" title="Share your memories">✚ Add</a>
-            <a href="{% url 'event_memories' object.slug %}">
-              <span class="right">{{ object.memories_set.count }}</span>
-              Memories</a>
-          </li>
-        {% endif %}
-      {% endif %}
-    </ul>
-
-    {% if object.ended %}
-      {% if user.is_staff or user.id == object.submitted_by.id %}
-        <p>
-          <a href="{{ object.get_absolute_url }}add-recap/">Add or edit an event recap</a>
-        </p>
-      {% endif %}
-    {% else %}
-      {% if user.is_staff or user.id == object.submitted_by.id %}
-        <p>
-          <a href="{{ object.get_absolute_url }}edit-event/">Edit event info</a>
-        </p>
-      {% endif %}
-    {% endif %}
-
-    {% if user in object.attending.all %}
+  {% if event.ended %}
+    {% if user.is_staff or user.id == event.submitted_by.id %}
       <p>
-        <a href="{{ object.get_absolute_url }}memories/add/" title="Share your memories">
-          ✚ Add your memories
+        <a href="{{ event.get_absolute_url }}add-recap/" class="{% if event.recap %}button icon-edit{% else %}icon-add{% endif %}">
+          Add or edit an event recap</a>
+      </p>
+    {% endif %}
+  {% else %}
+    {% if user.is_staff or user.id == event.submitted_by.id %}
+      <p>
+        <a href="{{ event.get_absolute_url }}edit-event/" class="button icon-edit">
+          Edit event info
         </a>
       </p>
     {% endif %}
+  {% endif %}
 
-    {% if object.schedule.count %}
-      <h2>Schedule</h2>
-      <ul id="event_schedule">
-        {% for ev in event.schedule.all|dictsort:"start" %}
-          <li>
-            {% ifchanged ev.start.day %}<h4>{{ ev.start|date:"N j"}}</h4>{% endifchanged %}
-            {% if ev.show_time %}
-              <strong>
-                {{ ev.start.time }}{% if ev.end %} - {{ ev.end.time }}{% endif %}:
-              </strong>
-            {% endif %}
-            {{ ev.event }}
-            <span class="meta">{{ ev.description }}</span>
-          </li>
-        {% endfor %}
-      </ul>
-    {% endif %}
+  {% if user in event.attending.all %}
+    <p>
+      <a href="{{ event.get_absolute_url }}memories/add/" title="Share your memories" class="icon-add">
+        Add your memories
+      </a>
+    </p>
+  {% endif %}
 
-    {% with object.get_sidebars as sidebars %}
+  {% if event.schedule.count %}
+    <h2>Schedule</h2>
+    <ul id="event_schedule">
+      {% for ev in event.schedule.all|dictsort:"start" %}
+        <li>
+          {% ifchanged ev.start.day %}<h4>{{ ev.start|date:"N j"}}</h4>{% endifchanged %}
+          {% if ev.show_time %}
+            <strong>
+              {{ ev.start.time }}{% if ev.end %} - {{ ev.end.time }}{% endif %}:
+            </strong>
+          {% endif %}
+          {{ ev.event }}
+          <span class="meta">{{ ev.description }}</span>
+        </li>
+      {% endfor %}
+    </ul>
+  {% endif %}
+  {% block event_sidebars %}
+    {% with event.get_sidebars as sidebars %}
       {% if sidebars %}
         {% for side in sidebars %}
           <div>
             <h3>{{side.title}}</h3>
-            {{ side.text|markdown|typogrify }}
+            {{ side.text_formatted|typogrify }}
           </div>
         {% endfor %}
       {% endif %}
     {% endwith %}
+  {% endblock %}
 
-    {% if object.related_events.count %}
+  {% with event.related_events.all as related_events %}
+    {% if related_events %}
       <h2>Related</h2>
-      <ul>
-        {% for rel in object.related_events.all %}
+      <ul class="fancy">
+        {% for rel in related_events %}
           <li><a href="{{ rel.get_absolute_url }}">{{ rel.name }}</a></li>
         {% endfor %}
       </ul>
     {% endif %}
-    {% endwith %}
-  </section>
+  {% endwith %}
 {% endblock %}

@@ -1,5 +1,7 @@
 from django.contrib import admin
-from happenings.models import *
+
+from .models import Image, BulkEventImageUpload, UpdateImage, EventVideo
+from .models import Event, Update, Memory, ExtraInfo, Giveaway, GiveawayResponse, Schedule
 
 
 class ExtraInfoAdmin(admin.ModelAdmin):
@@ -53,13 +55,16 @@ class GiveawayAdmin(admin.ModelAdmin):
         GiveawayResponseInline,
     ]
     fieldsets = (
-      ('', {'fields': ('event', )}),
-      ('Q and A', {'fields': ('question', 'long_q', 'explanation')}),
-      ('For', {'fields': (('number', 'prize'), 'closed', )}),
+        ('', {'fields': ('event', )}),
+        ('Q and A', {'fields': ('question', 'long_q', 'explanation')}),
+        ('For', {'fields': (('number', 'prize'), 'closed', )}),
     )
 
 
 class EventAdmin(admin.ModelAdmin):
+    class Media:
+        js = ('/static/js/admin/inline_reorder.js',)
+
     search_fields       = ['name', ]
     list_display        = ('name', 'approved', 'featured', 'submitted_by', 'start_date',)
     list_filter         = ('featured', 'region')
@@ -74,15 +79,24 @@ class EventAdmin(admin.ModelAdmin):
         ScheduleInline,
     ]
     fieldsets = (
-        ('General info', {'fields': ('name', 'featured', 'info', 'recap', 'related_events')}),
+        ('General info', {'fields': ('submitted_by', 'name', 'subhead', 'featured', 'has_playlist', 'info', 'recap', 'related_events')}),
         ('Dates', {'fields': ('start_date', 'end_date',)}),
         ('Venue/Location', {'fields': ('region', 'venue', 'address', 'city', 'state', 'zipcode', 'website', 'phone', )}),
         ('Ticketing', {'fields': ('offsite_tickets', 'ticket_sales_end'), 'classes': ['collapse']}),
-        ('Staff info', {'fields': ('submitted_by', 'admin_notes', 'approved', 'geocode', 'slug'), 'classes': ['collapse']}),
+        ('Staff info', {'fields': ('admin_notes', 'approved', 'slug'), 'classes': ['collapse']}),
     )
+
+    def formfield_for_foreignkey(self, db_field, request, **kwargs):
+        if db_field.name == 'submitted_by':
+            kwargs['initial'] = request.user.id
+            return db_field.formfield(**kwargs)
+        return super(EventAdmin, self).formfield_for_foreignkey(db_field, request, **kwargs)
 
 
 class UpdateAdmin(admin.ModelAdmin):
+    class Media:
+        js = ('/static/js/admin/inline_reorder.js',)
+
     list_display = ('title', 'pub_time',)
     list_filter = ('event',)
     filter_horizontal = ('giveaway',)
@@ -99,9 +113,9 @@ class UpdateAdmin(admin.ModelAdmin):
         UpdateImageInline,
     ]
 
+
 admin.site.register(Event, EventAdmin)
 admin.site.register(Update, UpdateAdmin)
 admin.site.register(ExtraInfo, ExtraInfoAdmin)
 admin.site.register(Giveaway, GiveawayAdmin)
-admin.site.register(PlaylistItem)
-admin.site.register(Memories)
+admin.site.register(Memory)

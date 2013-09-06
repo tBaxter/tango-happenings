@@ -1,15 +1,24 @@
 {% extends "happenings/event_detail.html" %}
-{% load markup typogrify thumbnail cache event_tags %}
+
 {% block extra_title %}{{ event.name }} giveaways: {% endblock %}
 
 {% block content %}
-  <h1><a href="{{ event.get_absolute_url }}">{{ event.name }}</a> Giveaways</h1>
+  <h1>
+    <a href="{{ event.get_absolute_url }}">
+      {{ event.name }}
+    </a> Giveaways
+  </h1>
+  
+  {% if not authenticated_request %}
+    {% include "includes/signin_reg.html" %}
+    <small class="meta">to enter</small>
+  {% endif %}
+
   {% for giveaway in giveaways|dictsort:"closed" %}
     {% if giveaway.closed %}
       {% render_giveaway_winners giveaway %}
     {% else %}
-       {% render_giveaway_for_update update giveaway %}
-       <p class="meta">Winners will be posted when they have been decided.</p>
+      {% include "happenings/giveaways/giveaway_form.html" %}
     {% endif %}
   {% endfor %}
 {% endblock %}

@@ -1,23 +1,16 @@
 {% extends "happenings/base.html" %}
-{% load markup typogrify cache event_tags  %}
+{% load cache event_tags site_tags %}
 
 {% block extra_title %}Happenings {% if cal_date %} for {{ cal_date }}{% endif %}{% endblock %}
 
 {% block bodyclass %}wide{% endblock %}
 
-{% block content_top_inner %}
-<h1>{{ site.name }} Happenings</h1>
-<p>{% include 'happenings/includes/event_selects.html' %}</p>
-<p>{% load_past_events %}</p>
-<a href="{% url 'add_event' %}" class="button add left">Add an event</a>
-{% endblock %}
-
 {% block content %}
+  <h1>{{ site.name }} {{ cal_date }} {{ region }} Events</h1>
+  <a href="{% url 'add_event' %}" class="button icon-add right">Add an event</a>
   {% if cal_date or region %}
-    <a href="{% url 'events_index' %}" class="right"><button>All events</button></a>
-    <h1>{{ cal_date }} {{ region }} Events</h1>
+    <a href="{% url 'events_index' %}" class="button right">All events</a>
   {% endif %}
-
   {% if object_list %}
     <div class="tabs">
       <ul>
@@ -40,12 +33,14 @@
           {% endfor %}
         </div> <!-- /vcalendar -->
         <div>
-          <section class="hcal_tables sticky" id="small-calendar"></section>
+          <p>{% include 'happenings/includes/event_selects.html' %}</p>
+          <p>{% load_past_events %}</p>
+          <section class="hcal_tables" id="small-calendar"></section>
         </div>
       </div><!-- /list -->
       <div class="hcal_tables" id="big-calendar"></div>
     </div><!-- /tabs -->
   {% else %}
-    <h2>We were unable to find any upcoming {{ cal_date }} {{ region }} events.
+    <h2>We were unable to find any upcoming {{ cal_date }} {{ region }} events.</h2>
   {% endif %}
 {% endblock %}

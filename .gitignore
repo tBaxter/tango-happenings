@@ -14,3 +14,5 @@ templatetags/.DS_Store
 static/css/.DS_Store
 
 .DS_Store
+
+happenings/static/js/jquery.hcal-ck.js

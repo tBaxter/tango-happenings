@@ -1,58 +1,50 @@
 {% extends "happenings/event_detail.html" %}
 
-{% load markup typogrify socialize_tags event_tags %}
+{% load typogrify_tags social_tags event_tags humanize %}
 
-{% block extra_title %}Events: {{ event.name }}: {{ update.title }}{% endblock %}
+{% block extra_title %}Events: {{ event.name }}: {{ object.title }}{% endblock %}
 
 {% block bodyclass %}detail{% endblock %}
 
 {% block content %}
   <article>
-    <section class="content-detail">
-      {% with update as object %}
-        {% include "includes/top_assets.html" %}
+    <section class="content-body">
+      {% include "includes/top_assets.html" %}
+      
+      <h2 class="kicker">
+        <a href="{{ event.get_absolute_url }}">
+          {{ event.name }}
+        </a>
+      </h2>
+      <h1>{{ object.title }}</h1>
+      {{ object.update_formatted|typogrify }}
+
+      {% with object.get_open_giveaways as giveaways %}
+        {% if giveaways %}
+          <h1>{{ object.title }} Challenge{{ giveaways.count|pluralize }}!</h1>
+          <ul>
+            {% for g in giveaways %}
+              <li>
+                <a href="">
+                  <small class="meta block">
+                    For {{ g.number|apnumber }} {{ g.prize }}{{ g.number|pluralize }}:
+                  </small> 
+                  <strong>{{ g.question }}</strong>
+                </a>
+              </li>
+            {% endfor %}
+          </ul>
+        {% endif %}
       {% endwith %}
       
-      <h2 class="kicker"><a href="{{ event.get_absolute_url }}">{{ event.name }}</a></h2>
-      
-      <h1>{{ update.title }}</h1>
-
-      {{ update.update|safe|urlize|markdown|typogrify }}
-
-      {% paginate_update update %}
+      {% paginate_update object %}
 
       <a href="{% url 'event_comments' event.slug %}" class="right">
-        <span class="right">{{ count }}</span>
         View all comments
       </a>
-
-      {% with update as object %}
-        {% include 'comments/inclusion/comments.html' %}
-      {% endwith %}
-      
-    </section>
-    <section id="more_assets">
-      {% if update.giveaway.count %} 
-        <h1>GDP Challenge{{ update.giveaway.count|pluralize }}!</h1>
-        {% for giveaway in update.giveaway.all %}
-          {% if giveaway.closed %}
-            {% render_giveaway_winners giveaway %}
-          {% else %}
-            {% if user.is_authenticated %}
-              {% render_giveaway_for_update update giveaway %}
-            {% else %}
-              <a href="/login/">Sign in to answer!</a>
-            {% endif %}
-            <p class="meta">
-              {% if giveaway.giveawayresponse_set.count %}
-                We have answers recorded from {{ giveaway.giveawayresponse_set.all|join:", " }}.
-              {% endif %}
-              Winners will be posted when they have been decided.
-            </p>
-          {% endif %}
-        {% endfor %}
-      {% endif %}
+      {% include 'comments/inclusion/comments.html' %}
     </section>
   </article>
   <hr class="clear">
 {% endblock %}
+ 
