@@ -1,11 +1,8 @@
 django-happenings
 =================
 
-My calendar app. I make no promises it will work for you, but if you try it, let me know.
+A powerful Django calendar/events app. It works as part of Tango, or as a standalone app.
 
-Supports multi-day events, schedules, photos, updates, recaps and a bunch of other stuff that nobody but me will probably ever need or want.
+Supports multi-day events, schedules, photos, updates, recaps and a bunch of other stuff.
 
 Includes a copy of jquery.hcal for easy calendar creation.
-
-To-do:
-  Templates are a complete mess.
