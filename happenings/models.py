@@ -143,6 +143,8 @@ class Event(models.Model):
         self.info_formatted = sanetize_text(self.info)
         if self.recap:
             self.recap_formatted = sanetize_text(self.recap)
+        if not self.end_date:
+            self.end_date = self.start_date
         super(Event, self).save(*args, **kwargs)
 
     def ended(self):
@@ -371,6 +373,10 @@ class Update(models.Model):
         if self.updateimage_set.count():
             return True
 
+    @models.permalink
+    def get_gallery_url(self):
+        return ('update_slides', [self.event.slug, str(self.id)])
+
     def get_image(self):
         return self.updateimage_set.latest('id')
 
@@ -414,6 +420,8 @@ class Memory(models.Model):
         self.thoughts_formatted = sanetize_text(self.thoughts_formatted)
         super(Memory, self).save(*args, **kwargs)
 
+    def get_top_assets(self):
+        return self.photos.all()
 
 class BulkEventImageUpload(models.Model):
     """
