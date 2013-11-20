@@ -1,4 +1,4 @@
-include LICENSE README.md
+include LICENSE README.md CHANGES.md
 recursive-include happenings *.html
 recursive-include happenings *.css
 recursive-include happenings *.js

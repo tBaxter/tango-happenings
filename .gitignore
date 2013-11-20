@@ -16,3 +16,5 @@ static/css/.DS_Store
 .DS_Store
 
 happenings/static/js/jquery.hcal-ck.js
+
+dist/tango-happenings-0.3.tar.gz
