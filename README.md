@@ -1,4 +1,4 @@
-django-happenings
+Tango Happenings
 =================
 
 A powerful Django calendar/events app. It works as part of Tango, or as a standalone app.
