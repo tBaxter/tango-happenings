@@ -7,7 +7,11 @@
 
 {% block content %}
   <h1>{{ site.name }} {{ cal_date }} {{ region }} Events</h1>
-  <a href="{% url 'add_event' %}" class="button icon-add right">Add an event</a>
+  {% if authenticated_request %}
+    <a href="{% url 'add_event' %}" class="button icon-add right">Add an event</a>
+  {% else %}
+    {# insert login to add event link here #}
+  {% endif %}
   {% if cal_date or region %}
     <a href="{% url 'events_index' %}" class="button right">All events</a>
   {% endif %}

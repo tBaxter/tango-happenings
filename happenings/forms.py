@@ -10,11 +10,13 @@ class EventForm(ModelForm):
         fields = [
             'name', 'info',
             'start_date', 'end_date',
-            'region', 'venue', 'city', 'state', 'zipcode', 'website'
+            'region', 'venue',
+            'city', 'state', 'zipcode',
+            'website'
         ]
         widgets = {
-            'start_date':   TextInput(attrs={'class': 'datepicker'}),
-            'end_date':     TextInput(attrs={'class': 'datepicker'}),
+            'start_date': TextInput(attrs={'class': 'datepicker'}),
+            'end_date': TextInput(attrs={'class': 'datepicker'}),
         }
 
 
@@ -24,8 +26,9 @@ class AddEventForm(EventForm):
         Validate that an event with this name on this date does not exist.
         """
         cleaned_data = super(EventForm, self).clean()
-        if Event.objects.filter(name=cleaned_data['name'], start_date=cleaned_data['start_date']).count():
-            raise forms.ValidationError(u'This event appears to be in the database already.')
+        if 'name' in cleaned_data and 'start_date' in cleaned_data:
+            if Event.objects.filter(name=cleaned_data['name'], start_date=cleaned_data['start_date']).count():
+                raise forms.ValidationError(u'This event appears to be in the database already.')
         return cleaned_data
 
 
