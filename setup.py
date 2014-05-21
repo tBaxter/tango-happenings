@@ -4,7 +4,7 @@ from setuptools import find_packages
 
 setup(
     name='tango-happenings',
-    version='0.3.2',
+    version='0.4',
     author=u'Tim Baxter',
     author_email='mail.baxter@gmail.com',
     url='https://github.com/tBaxter/django-happenings',
