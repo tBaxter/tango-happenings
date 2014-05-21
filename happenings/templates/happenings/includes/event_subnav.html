@@ -22,7 +22,7 @@
     <li>
       <a href="{{ domain }}{% url 'event_update_list' event.slug %}">
         <span class="counter">{{ u_count }}</span>
-        updates{{ u_count|pluralize }}
+        update{{ u_count|pluralize }}
       </a>
     </li>
   {% endif %}
@@ -113,7 +113,7 @@
 
 {% if event.has_started and user in event.attending.all %}
     <li>
-      <a href="{{ domain }}{{ event.get_absolute_url }}memories/add/" class="right button icon-add" title="Share your memories">
+      <a href="{{ domain }}{% url 'add_memory' event.slug %}" class="right button icon-add" title="Share your memories">
         Add
       </a>
       <a href="{{ domain }}{% url 'event_memories' event.slug %}">

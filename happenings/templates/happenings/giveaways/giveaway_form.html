@@ -15,7 +15,7 @@
     <p class="meta">{{ giveaway.long_q }}</p>
   {% endif %}
 
-  {% if authenticated_request %}
+  {% if user.is_authenticated %}
     <form action="{% url 'giveaway_response_processing' giveaway.id %}" method="post" class="boxedform giveaway-form">
       {% csrf_token %}
       {{ form.non_field_errors }}
@@ -31,7 +31,10 @@
 </div>
 <p class="meta">
   {% if giveaway.giveawayresponse_set.count %}
-    We have answers from {{ giveaway.get_respondents_list }}.
+    We have answers from 
+    {% for r in giveaway.giveawayresponse_set.all %}
+      {% if not forloop.first %}, {% endif %}
+      {{ r.respondent.display_name }}{% endfor %}.
   {% endif %}
   Winners will be posted when they have been decided.
 </p>

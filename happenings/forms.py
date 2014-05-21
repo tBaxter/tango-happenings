@@ -1,7 +1,7 @@
 from django import forms
 from django.forms import ModelForm, HiddenInput, TextInput
 
-from .models import Event, GiveawayResponse, PlaylistItem, Memory
+from .models import Event, GiveawayResponse, Memory
 
 
 class EventForm(ModelForm):
@@ -26,9 +26,8 @@ class AddEventForm(EventForm):
         Validate that an event with this name on this date does not exist.
         """
         cleaned_data = super(EventForm, self).clean()
-        if 'name' in cleaned_data and 'start_date' in cleaned_data:
-            if Event.objects.filter(name=cleaned_data['name'], start_date=cleaned_data['start_date']).count():
-                raise forms.ValidationError(u'This event appears to be in the database already.')
+        if Event.objects.filter(name=cleaned_data['name'], start_date=cleaned_data['start_date']).count():
+            raise forms.ValidationError(u'This event appears to be in the database already.')
         return cleaned_data
 
 
@@ -45,22 +44,7 @@ class EventRecapForm(EventUpdateForm):
 class GiveawayResponseForm(ModelForm):
     class Meta:
         model = GiveawayResponse
-        exclude = ('closed', 'notes')
-        widgets = {
-            'respondent': HiddenInput(),
-            'correct': HiddenInput(),
-            'question': HiddenInput(),
-        }
-
-
-class PlayListForm(ModelForm):
-    class Meta:
-        model = PlaylistItem
-        fields = ('title', 'link')
-        widgets = {
-            'event': HiddenInput(),
-            'user': HiddenInput(),
-        }
+        fields = ['answer']
 
 
 class MemoryForm(ModelForm):
@@ -79,14 +63,15 @@ class MemoryForm(ModelForm):
 
     def clean_upload(self):
         data = self.cleaned_data['upload']
-        upload_name = data.name.lower()
-        if not any(upload_name.endswith(x) for x in ('.jpg', '.jpeg', '.zip')):
-            raise forms.ValidationError("Your upload must be in JPG or ZIP formats.")
-        return data
+        if data:
+            upload_name = data.name.lower()
+            if not any(upload_name.endswith(x) for x in ('.jpg', '.jpeg', '.zip')):
+                raise forms.ValidationError("Your upload must be in JPG or ZIP formats.")
+            return data
 
     class Meta:
         model = Memory
-        fields = ['thoughts', 'upload', 'upload_caption']
+        fields = ['text', 'upload', 'upload_caption']
         widgets = {
             'photos': HiddenInput()
         }

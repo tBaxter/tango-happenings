@@ -1,17 +1,13 @@
 {% extends "happenings/base.html" %}
-{% load cache event_tags site_tags %}
+{% load typogrify_tags cache event_tags  %}
 
 {% block extra_title %}Happenings {% if cal_date %} for {{ cal_date }}{% endif %}{% endblock %}
 
 {% block bodyclass %}wide{% endblock %}
 
 {% block content %}
-  <h1>{{ site.name }} {{ cal_date }} {{ region }} Events</h1>
-  {% if authenticated_request %}
-    <a href="{% url 'add_event' %}" class="button icon-add right">Add an event</a>
-  {% else %}
-    {# insert login to add event link here #}
-  {% endif %}
+  <h1>{{ site.name }} {{ cal_date }} {% if region %}{{ region }}{% endif %} Happenings</h1>
+  <a href="{% url 'add_event' %}" class="button icon-add right">Add an event</a>
   {% if cal_date or region %}
     <a href="{% url 'events_index' %}" class="button right">All events</a>
   {% endif %}

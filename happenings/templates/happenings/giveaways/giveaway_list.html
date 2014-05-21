@@ -1,13 +1,11 @@
 {% extends "happenings/event_detail.html" %}
 
+{% load event_tags %}
+
 {% block extra_title %}{{ event.name }} giveaways: {% endblock %}
 
 {% block content %}
-  <h1>
-    <a href="{{ event.get_absolute_url }}">
-      {{ event.name }}
-    </a> Giveaways
-  </h1>
+  <h1><a href="{{ event.get_absolute_url }}">{{ event.name }}</a> Giveaways</h1>
   
   {% if not authenticated_request %}
     {% include "includes/signin_reg.html" %}
@@ -15,10 +13,13 @@
   {% endif %}
 
   {% for giveaway in giveaways|dictsort:"closed" %}
-    {% if giveaway.closed %}
-      {% render_giveaway_winners giveaway %}
-    {% else %}
-      {% include "happenings/giveaways/giveaway_form.html" %}
-    {% endif %}
+    <div id="g-{{ giveaway.id }}">
+      {% if giveaway.closed %}
+        {% render_giveaway_winners giveaway %}
+      {% else %}
+        {% render_giveaway_form giveaway user %}
+      {% endif %}
+      <hr class="fancy">
+    </div>
   {% endfor %}
 {% endblock %}

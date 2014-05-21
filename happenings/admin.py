@@ -25,7 +25,8 @@ class EventBulkInline(admin.TabularInline):
 
 class UpdateImageInline(admin.TabularInline):
     model = UpdateImage
-    extra = 6
+    max_num = 3
+    extra = 1
 
 
 class GiveawayResponseInline(admin.TabularInline):
@@ -55,9 +56,9 @@ class GiveawayAdmin(admin.ModelAdmin):
         GiveawayResponseInline,
     ]
     fieldsets = (
-        ('', {'fields': ('event', )}),
-        ('Q and A', {'fields': ('question', 'long_q', 'explanation')}),
-        ('For', {'fields': (('number', 'prize'), 'closed', )}),
+      ('', {'fields': ('event', )}),
+      ('Q and A', {'fields': ('question', 'long_q', 'explanation')}),
+      ('For', {'fields': (('number', 'prize'), 'closed', )}),
     )
 
 
@@ -114,8 +115,12 @@ class UpdateAdmin(admin.ModelAdmin):
     ]
 
 
+class MemoryAdmin(admin.ModelAdmin):
+    readonly_fields = ('post_date',)
+
+
 admin.site.register(Event, EventAdmin)
 admin.site.register(Update, UpdateAdmin)
 admin.site.register(ExtraInfo, ExtraInfoAdmin)
 admin.site.register(Giveaway, GiveawayAdmin)
-admin.site.register(Memory)
+admin.site.register(Memory, MemoryAdmin)

@@ -14,8 +14,8 @@ from django.template.defaultfilters import slugify
 from django.utils.decorators import method_decorator
 from django.views.generic import ListView, DetailView, UpdateView
 
-from .forms import GiveawayResponseForm, PlayListForm, MemoryForm, AddEventForm, EventRecapForm, EventUpdateForm
-from .models import Event, Update, Giveaway, GiveawayResponse, PlaylistItem, Image, ExtraInfo, Memory
+from .forms import GiveawayResponseForm, MemoryForm, AddEventForm, EventRecapForm, EventUpdateForm
+from .models import Event, Update, Giveaway, GiveawayResponse, Image, ExtraInfo, Memory
 
 key = getattr(settings, 'GMAP_KEY', None)
 
@@ -152,8 +152,8 @@ def event_all_comments_list(request, slug):
     Combines event comments and update comments in one list.
     """
     event    = get_object_or_404(Event, slug=slug)
-    comments = event.get_all_comments()
-    page = int(request.GET.get('page', 1))
+    comments = event.all_comments
+    page = int(request.GET.get('page', 99999)) # feed empty page by default to push to last page
     is_paginated = False
     if comments:
         paginator = Paginator(comments, 50)  # Show 50 comments per page
@@ -167,7 +167,9 @@ def event_all_comments_list(request, slug):
     return render(request, 'happenings/event_comments.html', {
         "event": event,
         "comment_list": comments,
-        "page_obj": page,
+        "object_list": comments,
+        "page_obj": comments,
+        "page": page,
         "is_paginated": is_paginated,
         "key": key
     })
@@ -182,15 +184,13 @@ def event_update_list(request, slug):
     """
     event = get_object_or_404(Event, slug=slug)
     updates = Update.objects.filter(event__slug=slug)
-    has_started = True
-    if event.ended():  # if the event is over, use chronological order
-        updates.order_by('id')
+    if event.recently_ended():  # if the event is over, use chronological order
+        updates = updates.order_by('id')
     else:  # if not, use reverse chronological
-        updates.order_by('-id')
+        updates = updates.order_by('-id')
     return render(request, 'happenings/updates/update_list.html', {
       'event': event,
       'object_list': updates,
-      'has_started': has_started,
     })
 
 
@@ -226,25 +226,6 @@ def giveaway_winners_for_event(request, slug):
         'event': event,
         'winners': winners,
     })
-
-
-def playlist(request, slug):
-    event    = get_object_or_404(Event, slug=slug)
-    playlist = PlaylistItem.objects.filter(event=event).order_by('-votes')
-    form = PlayListForm()
-    if request.method == 'POST':
-        data = request.POST.copy()
-        data['user'] = request.user.id
-        data['event'] = event.id
-        form = PlayListForm(data, request.FILES)
-        if form.is_valid():
-            form.save()
-    return render(request, 'happenings/playlist.html', {
-        'form': form,
-        'playlist_items': playlist,
-        'event': event
-    })
-
 
 @login_required
 def add_event(request):
@@ -298,17 +279,18 @@ def add_attending(request, slug):
 
 def record_giveaway_response(request, giveaway_id):
     giveaway = get_object_or_404(Giveaway, id=giveaway_id)
+    event = giveaway.event
     form = GiveawayResponseForm(request.POST or None)
     if form.is_valid():
-        new_instance = form.save()
-        new_instance.giveaway = giveaway
+        new_instance = form.save(commit=False)
+        new_instance.question = giveaway
         new_instance.respondent = request.user
         new_instance.save()
-        messages.sucess(request, 'Your response has been recorded.')
+        messages.success(request, 'Your response has been recorded.')
     try:
         return HttpResponseRedirect(giveaway.update_set.all()[0].get_absolute_url())
     except:
-        return HttpResponseRedirect(reverse('events_index'))
+        return HttpResponseRedirect(event.get_absolute_url())
 
 
 def add_memory(request, slug):
@@ -317,10 +299,11 @@ def add_memory(request, slug):
     form = MemoryForm(request.POST or None, request.FILES or None)
     if form.is_valid():
         instance = form.save(commit=False)
-        instance.author = request.user
+        instance.user = request.user
         instance.event = event
         instance.save()
         msg = "Your thoughts were added. "
+        
         if request.FILES:
             photo_list = request.FILES.getlist('upload')
             photo_count = len(photo_list)

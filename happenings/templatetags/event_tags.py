@@ -3,6 +3,7 @@ import datetime
 from django import template
 from django.contrib.sites.models import Site
 from happenings.models import Event, GiveawayResponse, Update
+from happenings.forms import GiveawayResponseForm
 
 register = template.Library()
 
@@ -38,7 +39,7 @@ def get_upcoming_events(num, days, featured=False):
     holding them for 14 days past their start date.
 
     """
-    start_date = today - datetime.timedelta(days=days)
+    start_date = datetime.date.today() - datetime.timedelta(days=days)
     events = Event.objects.filter(start_date__gt=start_date).order_by('start_date')
     if featured:
         events = events.filter(featured=True)
@@ -61,7 +62,7 @@ def get_events_by_date_range(days_out, days_hold, max_num=5, featured=False):
     range_start = today - datetime.timedelta(days=days_hold)
     range_end   = today + datetime.timedelta(days=days_out)
 
-    events = Event.objects.filter(start_date__gte=range_start, end_date__lte=range_end).order_by('start_date')
+    events = Event.objects.filter(start_date__gte=range_start, start_date__lte=range_end).order_by('start_date')
     if featured:
         events = events.filter(featured=True)
     events = events[:max_num]
@@ -93,6 +94,18 @@ def render_giveaway_winners(giveaway):
     return {
         'winners': GiveawayResponse.objects.filter(question=giveaway, correct=True),
         'giveaway': giveaway
+    }
+
+
+@register.inclusion_tag('happenings/giveaways/giveaway_form.html')
+def render_giveaway_form(giveaway, user):
+    """
+    shows giveaway form
+    """
+    return {
+        'form': GiveawayResponseForm(),
+        'giveaway': giveaway,
+        'user': user
     }
 
 

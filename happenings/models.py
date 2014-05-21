@@ -11,13 +11,14 @@ from itertools import chain
 from PIL import Image as PIL_Image
 
 from django.conf import settings
-from django.contrib.comments.models import Comment
+from tango_comments.models import Comment
 from django.contrib.contenttypes.models import ContentType
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.db import models
-from django.db.models import signals
+from django.db.models import signals, Q
+from django.utils.functional import cached_property
 
-from tango_shared.models import ContentImage
+from tango_shared.models import ContentImage, BaseUserContentModel, BaseSidebarContentModel
 from tango_shared.utils.maptools import get_geocode
 from tango_shared.utils.sanetize import sanetize_text
 
@@ -93,7 +94,6 @@ class Event(models.Model):
     info_formatted = models.TextField(blank=True, null=True, editable=False)
     recap_formatted = models.TextField(blank=True, null=True, editable=False)
 
-
     add_date = models.DateField(auto_now_add=True)
     start_date = models.DateField(help_text="yyyy-mm-dd format")
     end_date = models.DateField(help_text="For multi-day events", blank=True, null=True)
@@ -137,9 +137,10 @@ class Event(models.Model):
         return self.name
 
     def save(self, *args, **kwargs):
-        geocode = get_geocode(self.city, self.state, self.address, self.zipcode)
-        if geocode:
-            self.geocode = ', '.join(geocode)
+        if not self.geocode:
+            geocode = get_geocode(self.city, self.state, self.address, self.zipcode)
+            if geocode:
+                self.geocode = ', '.join(geocode)
         self.info_formatted = sanetize_text(self.info)
         if self.recap:
             self.recap_formatted = sanetize_text(self.recap)
@@ -163,36 +164,40 @@ class Event(models.Model):
                 return True
 
     def has_started(self):
+        """
+        Determines if event has started. Duh.
+        """
         if self.start_date <= datetime.date.today():
             return True
 
     def comments_open(self):
+        """
+        Determine if comments should be allowed. 
+        Probably need some more robust logic here :-)
+        Maybe something like "If event has been over for a month, no more comments." 
+        Or something.
+        """
         return True
 
-    def get_comment_count(self):
-        ctype = ContentType.objects.get(app_label__exact="happenings", name__exact='event')
-        num_comments = Comment.objects.filter(content_type=ctype.id, object_pk=self.id).count()
-        return num_comments
-
-    def get_all_comments(self):
+    
+    @cached_property
+    def all_comments(self):
+        """
+        Returns combined list of event and update comments.
+        """
         ctype         = ContentType.objects.get(app_label__exact="happenings", name__exact='event')
         update_ctype  = ContentType.objects.get(app_label__exact="happenings", name__exact='update')
-        comments      = Comment.objects.filter(content_type=ctype.id, object_pk=self.id)
         update_ids    = self.update_set.values_list('id', flat=True)
-        u_comments    = Comment.objects.filter(content_type=update_ctype.id, object_pk__in=update_ids)
-        if self.ended():
-            return list(chain(comments, u_comments))
-        else:
-            return list(chain(comments, u_comments)).reverse()
+        return Comment.objects.filter(Q(content_type=ctype.id, object_pk=self.id) | Q(content_type=update_ctype.id, object_pk__in=update_ids))
+
+    def get_latest_comments(self):
+        """
+        Returns latest 5 comments.
+        """
+        return self.all_comments.order_by('-id')[0:5]
 
     def get_all_comments_count(self):
-        ctype         = ContentType.objects.get(app_label__exact="happenings", name__exact='event')
-        update_ctype  = ContentType.objects.get(app_label__exact="happenings", name__exact='update')
-        comments      = Comment.objects.filter(content_type=ctype.id, object_pk=self.id).count()
-        update_ids    = self.update_set.values_list('id', flat=True)
-        u_comments    = Comment.objects.filter(content_type=update_ctype.id, object_pk__in=update_ids).count()
-        count = comments + u_comments
-        return count
+        return self.all_comments.count()
 
     def get_all_images(self):
         self_imgs     = self.image_set.all()
@@ -240,24 +245,11 @@ class Event(models.Model):
         return self.extrainfo_set.filter(is_sidebar=False)
 
 
-class ExtraInfo(models.Model):
+class ExtraInfo(BaseSidebarContentModel):
     """
     For sidebar-type additional info on event
     """
     event = models.ForeignKey(Event, verbose_name="Extra info",)
-    title = models.CharField(max_length=300)
-    slug = models.SlugField(blank=True, help_text="Only needed if this is not a sidebar")
-    text = models.TextField()
-    text_formatted = models.TextField(blank=True, null=True, editable=False)
-    is_sidebar = models.BooleanField(default=False)
-    image = models.ImageField(upload_to='img/events/special/', blank=True, null=True)
-
-    def __unicode__(self):
-        return unicode(self.title)
-
-    def save(self, *args, **kwargs):
-        self.text_formatted = sanetize_text(self.text)
-        super(ExtraInfo, self).save(*args, **kwargs)
 
 
 class Image(ContentImage):
@@ -317,20 +309,6 @@ class GiveawayResponse(models.Model):
         return unicode(self.respondent)
 
 
-class PlaylistItem(models.Model):
-    event      = models.ForeignKey(Event)
-    user       = models.ForeignKey(UserModel, limit_choices_to = {'is_active': True}, related_name="playlist_submitter")
-    title      = models.CharField(max_length=200)
-    link       = models.URLField(max_length=200, blank=True, help_text="Optional: Link to a video or tab to help folks learn it.")
-    votes      = models.IntegerField(blank=True, null=True)
-
-    def __unicode__(self):
-        return unicode(self.title)
-
-    class Meta:
-        unique_together = (("event", "title"),)
-
-
 class Update(models.Model):
     """
     Allows updating the event in near real-time, with blog-style content updates.
@@ -338,6 +316,7 @@ class Update(models.Model):
     event = models.ForeignKey(Event, limit_choices_to = {'featured': True}, db_index=True)
     title = models.CharField("Update title", max_length=200)
     update = models.TextField()
+    update_formatted = models.TextField(blank=True, editable=False)
     pub_time = models.DateTimeField(auto_now_add=True)
     giveaway = models.ManyToManyField(
         Giveaway,
@@ -361,24 +340,23 @@ class Update(models.Model):
         self.update_formatted = sanetize_text(self.update)
         super(Update, self).save(*args, **kwargs)
 
+    @cached_property
     def comments_open(self):
-        return True
-
-    def get_comment_count(self):
-        ctype = ContentType.objects.get(name__exact='update')
-        num_comments = Comment.objects.filter(content_type=ctype.id, object_pk=self.id).count()
-        return num_comments
-
+        """
+        Based on the update's event's comments open status
+        """
+        return self.event.comments_open
+    
     def has_image(self):
         if self.updateimage_set.count():
             return True
 
+    def get_image(self):
+        return self.updateimage_set.latest('id')
+
     @models.permalink
     def get_gallery_url(self):
         return ('update_slides', [self.event.slug, str(self.id)])
-
-    def get_image(self):
-        return self.updateimage_set.latest('id')
 
     def get_top_assets(self):
         return self.updateimage_set.all()
@@ -395,33 +373,36 @@ class UpdateImage(ContentImage):
     update  = models.ForeignKey(Update, db_index=True)
 
 
-class Memory(models.Model):
+class Memory(BaseUserContentModel):
     """
     Allows users to post their thoughts and memories on an event.
     """
     event = models.ForeignKey(Event, verbose_name="remembered_event", limit_choices_to = {'featured': True})
-    author = models.ForeignKey(UserModel)
-    thoughts = models.TextField(blank=True)
-    thoughts_formatted = models.TextField(blank=True, editable=False)
+    
+    #author = models.ForeignKey(UserModel)
+    #thoughts = models.TextField(blank=True)
+    #thoughts_formatted = models.TextField(blank=True, editable=False)
     photos = models.ManyToManyField(Image, null=True, blank=True, help_text="Optional. Upload some images. Be kind, this isn't Flickr.")
     offsite_photos = models.URLField(null=True, blank=True, help_text="If you've already uploaded photos somewhere else, you can give the gallery URL here.")
 
     class Meta:
+        verbose_name = "memory"
         verbose_name_plural = "memories"
 
     def __unicode__(self):
-        return unicode(self.author)
+        return unicode(self.user)
 
     @models.permalink
     def get_absolute_url(self):
         return ('memory_detail', [self.event.slug, self.id])
 
     def save(self, *args, **kwargs):
-        self.thoughts_formatted = sanetize_text(self.thoughts_formatted)
+        self.text_formatted = sanetize_text(self.text)
         super(Memory, self).save(*args, **kwargs)
 
     def get_top_assets(self):
         return self.photos.all()
+
 
 class BulkEventImageUpload(models.Model):
     """
@@ -442,9 +423,9 @@ class BulkEventImageUpload(models.Model):
         #t.setDaemon(False)
         #t.start()
         this_dir = '{}/{}/'.format(now.year, now.month)  # make sure we have a dir to put these in.
-        dir      = "img/events/special/{}".format(this_dir)
+        dirstring = "img/events/special/{}".format(this_dir)
 
-        dirpath = settings.MEDIA_ROOT + dir
+        dirpath = settings.MEDIA_ROOT + dirstring
         if not os.path.exists(dirpath):
             os.makedirs(dirpath)
         for filename in zfile.namelist():
@@ -464,7 +445,7 @@ class BulkEventImageUpload(models.Model):
                     img_file = None
                 if img_file is not None:
                     try:
-                        Image.objects.get(image=dir + clean_filename)
+                        Image.objects.get(image=dirstring + clean_filename)
                     except Image.DoesNotExist:
                         new_img = Image(
                             event   = self.event,

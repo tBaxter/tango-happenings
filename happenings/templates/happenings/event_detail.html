@@ -1,6 +1,6 @@
 {% extends "happenings/base.html" %}
 
-{% load typogrify_tags cache social_tags event_tags humanize %}
+{% load typogrify_tags cache social_tags event_tags humanize comments %}
 
 {% block extra_title %}Events: {{ object.name }}{% endblock %}
 
@@ -16,7 +16,17 @@
       {% else %}
         {% include "happenings/includes/event_info.html" %}
       {% endif %}
+
+      {% if not event.ended %}
+        {% if user.is_authenticated %}
+          <h2 class="button add right clearfix">
+            <a href="{% url 'attending_add' event.slug %}">I'm going, sign me up!</a>
+          </h2>
+        {% endif %}
+      {% endif %}
+
       {% social_links object user authenticated_request %}
+
     </section>
 
     <hr class="fancy">
@@ -25,40 +35,35 @@
 
     {% if object.has_started %}
       {% with object.memory_set.count as memory_count %}
-        {% if memory_count %}
-          <hr class="fancy">
-        {% endif %}
+        
         {% if user in object.attending.all %}
-          {% if memory_count == 0 %}
-            <h2>
-              <a href="{% url 'add_memory' object.slug %}" class="icon-add">
-                Share your memories
-              </a>
-            </h2>
-            <p>No one has shared any memories yet. You can be the first.</p>
-          {% endif %}
+          <a href="{% url 'add_memory' object.slug %}" class="icon-add right button">
+            Since you attended, you can add your thoughts and photos:
+          </a>
+        {% endif %}
 
-          {% if memory_count > 0 %}
-            <a href="{% url 'add_memory' object.slug %}" class="right" class="icon-add">
-              Add yours
-            </a>
-          {% endif %}
-        {% endif %} 
+        <h2 class="kicker">
+          <a href="{% url 'event_memories' object.slug %}">Attendees said...</a>
+        </h2>
 
-        {% if memory_count > 0 %}
-          <h2>
-            <a href="{% url 'event_memories' object.slug %}">Memories</a>
-          </h2>
-          <div class="columned two-col">
-            {% for m in object.memory_set.all|dictsortreversed:'id'|slice:"2" %}
+        {% if memory_count == 0 %}
+          <p>No attendees have shared their memories yet.</p>
+        {% else %}
+          <div class="columned two-col grid">
+            {% for m in object.memory_set.all|dictsortreversed:'id'|slice:"6" %}
               <a href="{{ m.get_absolute_url }}">
-                {% if m.thoughts %}
-                  <p>{{ m.thoughts|truncatewords:"30" }}<br>
-                    <cite class="right">&ndash; {{ m.author.display_name }}</cite>
-                  </p>
-                {% else %}
-                  <small>{{ m.author.display_name }} shared some photos</small>
-                {% endif %}
+                {% with m.photos.all.0 as pic %}
+                  {% if pic %}
+                    <img src="{{ pic.image.t_80.url }}" class="avatar left">
+                  {% endif %}
+                  {% if m.text %}
+                    <p>{{ m.text|truncatewords:"30" }}<br>
+                      <cite class="right">&ndash; {{ m.user.display_name }}</cite>
+                    </p>
+                  {% else %}
+                    <small>{{ m.user.display_name }} shared some photos</small>
+                  {% endif %}
+                {% endwith %}
               </a>
             {% endfor %}
           </div>
@@ -67,18 +72,19 @@
           </a>
         {% endif %}
       {% endwith %}
+      <hr class="fancy">
     {% endif %}
 
-    <hr class="fancy">
-
     {% block comments %}
-      {% if object.comment_set.count %}
-        <a href="{% url 'event_comments' object.slug %}" class="right">
-          <span class="right">{{ count }}</span>
-          View all comments
-        </a>
+      {% include "happenings/includes/latest_comments.html" %}
+      <hr class="clear">
+      {% if authenticated_request %}
+        {% render_comment_form for object %}
+      {% else %}
+        {% include "includes/signin_reg.html" %}
       {% endif %}
-      {% include 'includes/comments/comments.html' %}
+      <hr class="fancy">
+
     {% endblock %}
   </article>
   <hr class="clear">

@@ -17,18 +17,27 @@
         </a>
       </h2>
       <h1>{{ object.title }}</h1>
+      
+      <p class="author vcard">
+        <span class="fn">
+          {{ object.author.display_name }}
+        </span>
+      </p>
+
       {{ object.update_formatted|typogrify }}
 
       {% with object.get_open_giveaways as giveaways %}
         {% if giveaways %}
-          <h1>{{ object.title }} Challenge{{ giveaways.count|pluralize }}!</h1>
-          <ul>
+          <h1>
+            <a href="{% url 'giveaways' event.slug %}">
+              {{ object.title }} Challenge{{ giveaways.count|pluralize }}
+            </a>
+          </h1>
+          <ul class="columned two-col">
             {% for g in giveaways %}
               <li>
-                <a href="">
-                  <small class="meta block">
-                    For {{ g.number|apnumber }} {{ g.prize }}{{ g.number|pluralize }}:
-                  </small> 
+                <small class="meta block">For {{ g.number|apnumber }} {{ g.prize }}{{ g.number|pluralize }}:</small> 
+                <a href="{% url 'giveaways' event.slug %}#g-{{ g.id }}">
                   <strong>{{ g.question }}</strong>
                 </a>
               </li>
