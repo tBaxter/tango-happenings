@@ -36,12 +36,14 @@ happenings/templates/happenings/giveaways/winners_export.html
 happenings/templates/happenings/includes/event_info.html
 happenings/templates/happenings/includes/event_selects.html
 happenings/templates/happenings/includes/event_subnav.html
+happenings/templates/happenings/includes/latest_comments.html
 happenings/templates/happenings/includes/latest_updates.html
 happenings/templates/happenings/includes/map.js
 happenings/templates/happenings/includes/past_events.html
 happenings/templates/happenings/includes/widget.html
 happenings/templates/happenings/updates/update_detail.html
 happenings/templates/happenings/updates/update_list.html
+happenings/templates/happenings/updates/update_slides.html
 happenings/templatetags/__init__.py
 happenings/templatetags/event_tags.py
 tango_happenings.egg-info/PKG-INFO

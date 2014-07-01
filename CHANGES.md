@@ -1,5 +1,11 @@
 # Change log
 
+## 0.4.2
+* More template revisions and updates
+
+## 0.4.1
+* Revised update slides template.
+
 ## 0.4 
 * Fairly major cleanup and refactor, particularly templates.
 
