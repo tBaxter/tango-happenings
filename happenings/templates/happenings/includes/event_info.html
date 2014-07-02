@@ -20,11 +20,11 @@
   </section>
   <section class="event_info">
     {% if event.subhead %}
-      <h3 class="kicker">{{ event.subhead|typogrify }}</h3>
+      <h2 class="kicker">{{ event.subhead|typogrify }}</h2>
     {% endif %}
-    <h2 class="summary{% if object.featured %} featured-event{% endif %}">
+    <h1 class="summary{% if object.featured %} featured-event{% endif %}">
       <a href="{{ object.get_absolute_url }}" class="url">{{ object.name }}</a>
-    </h2>
+    </h1>
     {% if object.start_time %}
       <span class="meta time">
         {{ object.start_time }}

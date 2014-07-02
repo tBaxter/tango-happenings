@@ -1,6 +1,6 @@
 {% extends "happenings/base.html" %}
 
-{% load typogrify_tags cache social_tags event_tags humanize comments %}
+{% load typogrify_tags social_tags event_tags humanize comments %}
 
 {% block extra_title %}Events: {{ object.name }}{% endblock %}
 
@@ -137,18 +137,6 @@
       {% endfor %}
     </ul>
   {% endif %}
-  {% block event_sidebars %}
-    {% with event.get_sidebars as sidebars %}
-      {% if sidebars %}
-        {% for side in sidebars %}
-          <div>
-            <h3>{{side.title}}</h3>
-            {{ side.text_formatted|typogrify }}
-          </div>
-        {% endfor %}
-      {% endif %}
-    {% endwith %}
-  {% endblock %}
 
   {% with event.related_events.all as related_events %}
     {% if related_events %}
@@ -160,4 +148,16 @@
       </ul>
     {% endif %}
   {% endwith %}
+
+  {% with event.get_sidebars as sidebars %}
+    {% if sidebars %}
+      {% for side in sidebars %}
+        <div>
+          <h3>{{ side.title }}</h3>
+          {{ side.text_formatted|typogrify }}
+        </div>
+      {% endfor %}
+    {% endif %}
+  {% endwith %}
+  
 {% endblock %}

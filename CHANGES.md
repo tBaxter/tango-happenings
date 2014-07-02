@@ -1,5 +1,8 @@
 # Change log
 
+## 0.4.3
+* Sidebar recovery
+
 ## 0.4.2
 * More template revisions and updates
 
