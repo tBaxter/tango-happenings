@@ -6,6 +6,17 @@
   {% endfor %}
 {% endwith %}
 
+{% with event.get_all_comments_count as count %}
+  {% if count %}
+    <li>
+      <a href="{{ domain }}{% url 'event_comments' event.slug %}">
+        <span class="counter">{{ count }}</span>
+          comment{{ count|pluralize }}
+      </a>
+    </li>
+  {% endif %}
+{% endwith %}
+
 {% if event.has_playlist and not event.has_started %}
   <li>
     {% with event.playlistitem_set.count as count %}
@@ -23,17 +34,6 @@
       <a href="{{ domain }}{% url 'event_update_list' event.slug %}">
         <span class="counter">{{ u_count }}</span>
         update{{ u_count|pluralize }}
-      </a>
-    </li>
-  {% endif %}
-{% endwith %}
-
-{% with event.get_all_comments_count as count %}
-  {% if count %}
-    <li>
-      <a href="{{ domain }}{% url 'event_comments' event.slug %}">
-        <span class="counter">{{ count }}</span>
-          comment{{ count|pluralize }}
       </a>
     </li>
   {% endif %}

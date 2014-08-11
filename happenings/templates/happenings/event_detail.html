@@ -1,6 +1,6 @@
 {% extends "happenings/base.html" %}
 
-{% load typogrify_tags social_tags event_tags humanize comments %}
+{% load typogrify_tags social_tags event_tags humanize comments thumbnail %}
 
 {% block extra_title %}Events: {{ object.name }}{% endblock %}
 
@@ -154,6 +154,9 @@
       {% for side in sidebars %}
         <div>
           <h3>{{ side.title }}</h3>
+          {% if side.image %}
+            <img src="{{ side.image|thumbnail_url:'two_col' }}" alt="">
+          {% endif %}
           {{ side.text_formatted|typogrify }}
         </div>
       {% endfor %}

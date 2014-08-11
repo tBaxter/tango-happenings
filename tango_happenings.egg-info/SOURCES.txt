@@ -7,6 +7,7 @@ docs/requirements.txt
 happenings/__init__.py
 happenings/admin.py
 happenings/forms.py
+happenings/how_to.md
 happenings/models.py
 happenings/signals.py
 happenings/tests.py

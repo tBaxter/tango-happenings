@@ -64,7 +64,10 @@ class GiveawayAdmin(admin.ModelAdmin):
 
 class EventAdmin(admin.ModelAdmin):
     class Media:
-        js = ('/static/js/admin/inline_reorder.js',)
+        js = (
+            '/static/admin/js/jquery-ui-1.10.3.custom-sortable.min.js',
+            '/static/admin/js/inline_reorder.js',
+        )
 
     search_fields       = ['name', ]
     list_display        = ('name', 'approved', 'featured', 'submitted_by', 'start_date',)
@@ -80,7 +83,7 @@ class EventAdmin(admin.ModelAdmin):
         ScheduleInline,
     ]
     fieldsets = (
-        ('General info', {'fields': ('submitted_by', 'name', 'subhead', 'featured', 'has_playlist', 'info', 'recap', 'related_events')}),
+        ('General info', {'fields': ('submitted_by', 'subhead', 'name', 'featured', 'has_playlist', 'info', 'recap', 'related_events')}),
         ('Dates', {'fields': ('start_date', 'end_date',)}),
         ('Venue/Location', {'fields': ('region', 'venue', 'address', 'city', 'state', 'zipcode', 'website', 'phone', )}),
         ('Ticketing', {'fields': ('offsite_tickets', 'ticket_sales_end'), 'classes': ['collapse']}),
@@ -96,7 +99,10 @@ class EventAdmin(admin.ModelAdmin):
 
 class UpdateAdmin(admin.ModelAdmin):
     class Media:
-        js = ('/static/js/admin/inline_reorder.js',)
+        js = (
+            '/static/admin/js/jquery-ui-1.10.3.custom-sortable.min.js',
+            '/static/admin/js/inline_reorder.js',
+        )
 
     list_display = ('title', 'pub_time',)
     list_filter = ('event',)

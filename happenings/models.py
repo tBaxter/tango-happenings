@@ -69,7 +69,7 @@ class Event(models.Model):
         related_name="event_submitter"
     )
     name = models.CharField('Event name', max_length=200)
-    subhead = models.CharField(max_length=200, blank=True)
+    subhead = models.CharField('Overline', max_length=200, blank=True)
     slug = models.SlugField(unique=True)
     region = models.CharField(max_length=200, choices=REGION_CHOICES)
     venue = models.CharField(max_length=200, blank=True, null=True)
@@ -86,6 +86,7 @@ class Event(models.Model):
     )
 
     info = models.TextField(
+        'Pre-event info',
         blank=True,
         null=True,
         help_text="Brief info about the event. Do **not** use HTML, but Markdown is allowed."
@@ -251,6 +252,10 @@ class ExtraInfo(BaseSidebarContentModel):
     """
     event = models.ForeignKey(Event, verbose_name="Extra info",)
 
+    class Meta:
+        verbose_name = "Supplemental Info"
+        verbose_name_plural = "Supplemental Info"
+
 
 class Image(ContentImage):
     """
@@ -315,6 +320,7 @@ class Update(models.Model):
     """
     event = models.ForeignKey(Event, limit_choices_to = {'featured': True}, db_index=True)
     title = models.CharField("Update title", max_length=200)
+    author = models.ForeignKey(UserModel, limit_choices_to = {'is_staff': True})
     update = models.TextField()
     update_formatted = models.TextField(blank=True, editable=False)
     pub_time = models.DateTimeField(auto_now_add=True)
@@ -326,7 +332,6 @@ class Update(models.Model):
             Giveaways that aren't attached to an update will be still be attached to the event."""
     )
     last_updated = models.DateTimeField(auto_now=True)
-    author = models.ForeignKey(UserModel, limit_choices_to = {'is_staff': True})
     audio = models.FileField(upload_to='audio/events/special/', blank=True, null=True, help_text="Should be MP3 format")
 
     def __unicode__(self):
