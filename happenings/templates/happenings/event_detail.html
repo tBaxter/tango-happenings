@@ -155,7 +155,7 @@
         <div>
           <h3>{{ side.title }}</h3>
           {% if side.image %}
-            <img src="{{ side.image|thumbnail_url:'two_col' }}" alt="">
+            <img src="{{ side.image|thumbnail_url:'t_360' }}" alt="">
           {% endif %}
           {{ side.text_formatted|typogrify }}
         </div>

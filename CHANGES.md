@@ -1,5 +1,8 @@
 # Change log
 
+## 0.5.4
+* Upsized sidebar images
+
 ## 0.5.3
 * Fixed missing images in sidebars
 
