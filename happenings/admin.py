@@ -63,12 +63,6 @@ class GiveawayAdmin(admin.ModelAdmin):
 
 
 class EventAdmin(admin.ModelAdmin):
-    class Media:
-        js = (
-            '/static/admin/js/jquery-ui-1.10.3.custom-sortable.min.js',
-            '/static/admin/js/inline_reorder.js',
-        )
-
     search_fields       = ['name', ]
     list_display        = ('name', 'approved', 'featured', 'submitted_by', 'start_date',)
     list_filter         = ('featured', 'region')

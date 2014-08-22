@@ -179,7 +179,6 @@ class Event(models.Model):
         Or something.
         """
         return True
-
     
     @cached_property
     def all_comments(self):
@@ -199,6 +198,15 @@ class Event(models.Model):
 
     def get_all_comments_count(self):
         return self.all_comments.count()
+
+    def get_image(self):
+        """
+        Returns first image object from set for an image representation
+        """
+        try:
+            return self.image_set.all()[0].image
+        except IndexError:
+            return None
 
     def get_all_images(self):
         self_imgs     = self.image_set.all()

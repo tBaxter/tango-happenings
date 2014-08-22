@@ -1,4 +1,23 @@
-# Change log
+# Tango-Happenings Change log
+
+## 0.6.0
+* Updates for Django 1.7
+* Removed admin media now defined in tango-admin
+
+## 0.5.9
+Closing stray div tag on event detail
+
+## 0.5.8
+Missed parenthesis
+
+## 0.5.7
+cleaner get_image
+
+## 0.5.6
+* get_image should not be a cached property
+
+## 0.5.5
+* Added get_image method to Event model
 
 ## 0.5.4
 * Upsized sidebar images
@@ -30,7 +49,7 @@
 ## 0.4.1
 * Revised update slides template.
 
-## 0.4 
+## 0.4
 * Fairly major cleanup and refactor, particularly templates.
 
 ## 0.3.1
