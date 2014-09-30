@@ -173,13 +173,13 @@ class Event(models.Model):
 
     def comments_open(self):
         """
-        Determine if comments should be allowed. 
+        Determine if comments should be allowed.
         Probably need some more robust logic here :-)
-        Maybe something like "If event has been over for a month, no more comments." 
+        Maybe something like "If event has been over for a month, no more comments."
         Or something.
         """
         return True
-    
+
     @cached_property
     def all_comments(self):
         """
@@ -359,7 +359,7 @@ class Update(models.Model):
         Based on the update's event's comments open status
         """
         return self.event.comments_open
-    
+
     def has_image(self):
         if self.updateimage_set.count():
             return True
@@ -383,7 +383,7 @@ class Update(models.Model):
 
 class UpdateImage(ContentImage):
     """ Subclasses Content Image to connect images to updates. """
-    update  = models.ForeignKey(Update, db_index=True)
+    update = models.ForeignKey(Update, db_index=True)
 
 
 class Memory(BaseUserContentModel):
@@ -391,10 +391,6 @@ class Memory(BaseUserContentModel):
     Allows users to post their thoughts and memories on an event.
     """
     event = models.ForeignKey(Event, verbose_name="remembered_event", limit_choices_to = {'featured': True})
-    
-    #author = models.ForeignKey(UserModel)
-    #thoughts = models.TextField(blank=True)
-    #thoughts_formatted = models.TextField(blank=True, editable=False)
     photos = models.ManyToManyField(Image, null=True, blank=True, help_text="Optional. Upload some images. Be kind, this isn't Flickr.")
     offsite_photos = models.URLField(null=True, blank=True, help_text="If you've already uploaded photos somewhere else, you can give the gallery URL here.")
 

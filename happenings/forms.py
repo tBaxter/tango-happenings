@@ -48,16 +48,16 @@ class GiveawayResponseForm(ModelForm):
 
 
 class MemoryForm(ModelForm):
-    upload = forms.FileField(
+    photos = forms.FileField(
         required=False,
         label = "Or upload your photos(s)",
-        help_text='<span class="meta">You can upload one or several JPG files. Be kind, this isn\'t photobucket"</span>',
+        help_text='<span class="meta">You can upload one or several JPG files. Be kind, this isn\'t photobucket.</span>',
         widget=forms.FileInput(attrs={'multiple': 'multiple'})
     )
     upload_caption = forms.CharField(
         label="Caption",
         required=False,
-        help_text="Note: if you are uploading multiple photos, one caption will be used.",
+        help_text="You can add an optional caption. Note: if you are uploading multiple photos, one caption will be used.",
         widget=forms.TextInput()
     )
 
@@ -71,7 +71,7 @@ class MemoryForm(ModelForm):
 
     class Meta:
         model = Memory
-        fields = ['text', 'upload', 'upload_caption']
+        fields = ['text', 'offsite_photos', 'photos', 'upload_caption',]
         widgets = {
             'photos': HiddenInput()
         }

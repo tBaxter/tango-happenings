@@ -1,5 +1,8 @@
 # Tango-Happenings Change log
 
+## 0.7.0
+* Corrected attendee photo upload problems
+
 ## 0.6.0
 * Updates for Django 1.7
 * Removed admin media now defined in tango-admin

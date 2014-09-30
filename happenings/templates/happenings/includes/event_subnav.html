@@ -17,17 +17,6 @@
   {% endif %}
 {% endwith %}
 
-{% if event.has_playlist and not event.has_started %}
-  <li>
-    {% with event.playlistitem_set.count as count %}
-      <a href="{{ domain }}{% url 'playlist' slug=event.slug %}" class="icon-audio">
-        <span class="counter">{{ count }}</span>
-        playlist suggestion{{ count|pluralize }}
-      </a>
-    {% endwith %}
-  </li>
-{% endif %}
-
 {% with event.update_set.count as u_count %}
   {% if u_count %}
     <li>
@@ -54,7 +43,7 @@
   {% if i_count %}
     <li>
       <a href="{{ domain }}{% url 'event_slides' event.slug %}" class="icon-photo">
-        <span class="counter">{{ i_count }}</span> 
+        <span class="counter">{{ i_count }}</span>
         photo{{ i_count|pluralize }}
       </a>
     </li>
@@ -65,7 +54,7 @@
   {% if count %}
     <li>
       <a href="{{ domain }}{% url 'event_video_list' event.slug %}" class="icon-video">
-        <span class="counter">{{ count }}</span> 
+        <span class="counter">{{ count }}</span>
         video{{ count|pluralize }}
       </a>
     </li>
