@@ -1,5 +1,8 @@
 # Tango-Happenings Change log
 
+## 0.7.1
+* Using fork of vobject for proper installation
+
 ## 0.7.0
 * Corrected attendee photo upload problems
 

@@ -71,7 +71,7 @@ class MemoryForm(ModelForm):
 
     class Meta:
         model = Memory
-        fields = ['text', 'offsite_photos', 'photos', 'upload_caption',]
+        fields = ['offsite_photos', 'photos', 'upload_caption',]
         widgets = {
             'photos': HiddenInput()
         }
