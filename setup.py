@@ -11,7 +11,7 @@ setup(
     author=u'Tim Baxter',
     author_email='mail.baxter@gmail.com',
     url='https://github.com/tBaxter/django-happenings',
-    license='LICENSE',
+    license='MIT',
     description='Reusable Django events and calendaring.',
     long_description=open('README.md').read(),
     packages=find_packages(),
@@ -20,5 +20,13 @@ setup(
     include_package_data=True,
     dependency_links = [
         'http://github.com/tBaxter/vobject/tarball/master#egg=vobject',
-    ]
+    ],
+    classifiers=[
+        "Development Status :: 4 - Beta",
+        "Environment :: Web Environment",
+        "Framework :: Django",
+        "Intended Audience :: Developers",
+        "License :: OSI Approved :: MIT License",
+        "Programming Language :: Python",
+    ],
 )

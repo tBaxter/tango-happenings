@@ -12,12 +12,11 @@ Includes a copy of jquery.hcal for easy calendar creation.
 
     pip install tango-happenings
 
-or 
+or
 
     pip install git+https://github.com/tBaxter/tango-happenings.git
 
 
 ## Usage:
-Add 'happenings' and 'tango_shared' to your installed apps, then run syncdb or migrate.
 
-tango_shared is a dependency. It will be installed for you.
+Add 'happenings' and 'tango_shared' to your installed apps, then run syncdb or migrate.

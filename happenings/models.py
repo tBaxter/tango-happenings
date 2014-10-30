@@ -121,7 +121,13 @@ class Event(models.Model):
     )
     attending = models.ManyToManyField(UserModel, blank=True, null=True, related_name="attendees")
 
-    objects         = EventManager()
+    objects = EventManager()
+
+    class Meta:
+        ordering = ['-start_date', '-featured']
+
+    def __unicode__(self):
+        return self.name
 
     @models.permalink
     def get_absolute_url(self):
@@ -130,12 +136,6 @@ class Event(models.Model):
     @models.permalink
     def get_gallery_url(self):
         return ('event_slides', [self.slug])
-
-    class Meta:
-        ordering = ['-start_date', '-featured']
-
-    def __unicode__(self):
-        return self.name
 
     def save(self, *args, **kwargs):
         if not self.geocode:
