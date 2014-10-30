@@ -184,9 +184,11 @@ def event_update_list(request, slug):
     """
     event = get_object_or_404(Event, slug=slug)
     updates = Update.objects.filter(event__slug=slug)
-    if event.recently_ended():  # if the event is over, use chronological order
+    if event.recently_ended():
+        # if the event is over, use chronological order
         updates = updates.order_by('id')
-    else:  # if not, use reverse chronological
+    else:
+        # if not, use reverse chronological
         updates = updates.order_by('-id')
     return render(request, 'happenings/updates/update_list.html', {
       'event': event,
