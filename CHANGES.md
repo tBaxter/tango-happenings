@@ -1,5 +1,8 @@
 # Tango-Happenings Change log
 
+## 0.7.2
+* Fixed problems in setup.py that were keeping dependencies from being installed.
+
 ## 0.7.1
 * Using fork of vobject for proper installation
 
