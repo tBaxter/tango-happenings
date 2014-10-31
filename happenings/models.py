@@ -223,7 +223,9 @@ class Event(models.Model):
 
     def get_top_assets(self):
         images = self.get_all_images()[0:14]
-        video  = self.eventvideo_set.all()[0:10]
+        video = []
+        if 'video' in settings.INSTALLED_APPS:
+            video  = self.eventvideo_set.all()[0:10]
         return list(chain(images, video))[0:15]
 
     def get_giveaways(self):
@@ -271,11 +273,6 @@ class Image(ContentImage):
     Note we can also have Update Images,
     and Event has a get_all_images() method to combine the two
     """
-    event = models.ForeignKey(Event)
-
-
-class EventVideo(models.Model):
-    video = models.ForeignKey('video.Video', related_name="event_video")
     event = models.ForeignKey(Event)
 
 
@@ -462,6 +459,13 @@ class BulkEventImageUpload(models.Model):
                         )
                         new_img.save()
         return  # note that we're not actually saving the zip. No good reason to.
+
+
+if 'video' in settings.INSTALLED_APPS:
+
+    class EventVideo(models.Model):
+        video = models.ForeignKey('video.Video', related_name="event_video")
+        event = models.ForeignKey(Event)
 
 
 signals.post_save.connect(update_time, sender=Comment)
