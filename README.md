@@ -9,6 +9,8 @@ Supports multi-day events, schedules, photos, updates, recaps and a bunch of oth
 
 Includes a copy of jquery.hcal for easy calendar creation.
 
+Tango Happenings is tested for usage on both Python2 and Python3 installations.
+
 
 ## Installation:
 
