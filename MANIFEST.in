@@ -4,5 +4,4 @@ recursive-include happenings *.css
 recursive-include happenings *.js
 recursive-include happenings *.json
 recursive-include happenings *.md
-
 recursive-include docs *.txt
