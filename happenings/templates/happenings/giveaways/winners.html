@@ -2,13 +2,13 @@
 
 <article class="giveaway_results">
   {% if giveaway.explanation %}
-    <small class="meta">{{ giveaway.explanation }}</small> 
+    <small class="meta">{{ giveaway.explanation }}</small>
   {% endif %}
   <div class="columned two-col">
     <section>
       <div class="breakout">
         <small class="meta">
-          For {{ giveaway.number|apnumber }} {{ giveaway.prize }}{{ giveaway.number|pluralize }}, 
+          For {{ giveaway.number|apnumber }} {{ giveaway.prize }}{{ giveaway.number|pluralize }},
           we asked:
          </small>
          <p>{{ giveaway.question|typogrify }}</p>
@@ -18,6 +18,8 @@
       <br>
       {% if winners %}
         <p>Congratulations, {% for winner in winners %}
+
+            {# to-do: use humanize join here. #}
             {% if forloop.first %}{% else %}{% if forloop.last %} and {% else %}, {% endif %}{% endif %}{{ winner.respondent.display_name }}{% endfor %}
         <ul class="fancy">
           {% for winner in winners %}
