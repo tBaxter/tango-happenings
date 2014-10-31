@@ -14,12 +14,12 @@ setup(
     license='MIT',
     description='Reusable Django events and calendaring.',
     long_description=open('README.md').read(),
-    packages=find_packages(),
     zip_safe=False,
-    include_package_data=True,
     dependency_links = [
         'http://github.com/tBaxter/vobject/tarball/master#egg=vobject3',
     ],
+    packages=find_packages(),
+    include_package_data=True,
     install_requires=required,
     classifiers=[
         "Development Status :: 4 - Beta",
