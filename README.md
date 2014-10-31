@@ -27,3 +27,4 @@ Add 'happenings' and 'tango_shared' to your installed apps, then run syncdb or m
 ## Requirements
 
 * Installs vobject for ical/vcal integration
+* Tango Shared Core
