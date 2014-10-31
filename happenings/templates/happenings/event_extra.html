@@ -11,8 +11,11 @@
     </a>
   </h1>
   <h2>{{ object.title }}</h2>
+
   {{ object.text_formatted|typogrify }}
+
 {% endblock %}
+
 
 {% block secondary %}
   {% with object.event as event %}

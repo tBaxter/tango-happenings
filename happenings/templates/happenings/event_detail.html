@@ -10,6 +10,7 @@
   <article class="vcalendar">
     <section class="entry-content">
       {% include "includes/top_assets.html" %}
+
       {% if object.recap %}
         <h1>{{ object.name }}</h1>
         {{ object.recap_formatted|typogrify }}
@@ -35,7 +36,7 @@
 
     {% if object.has_started %}
       {% with object.memory_set.count as memory_count %}
-        
+
         {% if user in object.attending.all %}
           <a href="{% url 'add_memory' object.slug %}" class="icon-add right button">
             Since you attended, you can add your thoughts and photos:
@@ -75,6 +76,7 @@
       <hr class="fancy">
     {% endif %}
 
+    {# this would be a good place to insert the comments of your choice #}
     {% block comments %}
       {% include "happenings/includes/latest_comments.html" %}
       <hr class="clear">
@@ -83,10 +85,12 @@
       {% else %}
         {% include "includes/signin_reg.html" %}
       {% endif %}
+
       <hr class="fancy">
 
     {% endblock %}
   </article>
+
   <hr class="clear">
 {% endblock %}
 
@@ -162,5 +166,5 @@
       {% endfor %}
     {% endif %}
   {% endwith %}
-  
+
 {% endblock %}
