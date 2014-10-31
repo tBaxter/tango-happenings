@@ -19,7 +19,7 @@ setup(
     zip_safe=False,
     include_package_data=True,
     dependency_links = [
-        'http://github.com/tBaxter/vobject/tarball/master#egg=vobject',
+        'http://github.com/tBaxter/vobject/tarball/master#egg=vobject3',
     ],
     classifiers=[
         "Development Status :: 4 - Beta",
