@@ -2,12 +2,12 @@
 
 {% load typogrify_tags %}
 
-{% block title %}{{ object.name }} Memories: {% endblock %}
+{% block title %} {{ object.name }} Memories: {% endblock %}
 
 {% block content %}
   <article>
     <h1>
-      {{ object.name}} Memories 
+      {{ object.name}} Memories
       {% if user in object.attending.all  %}
         <a href="{% url 'add_memory' object.slug %}" class="meta add">Share yours</a>
       {% endif %}

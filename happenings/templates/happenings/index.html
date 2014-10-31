@@ -8,9 +8,11 @@
 {% block content %}
   <h1>{{ site.name }} {{ cal_date }} {% if region %}{{ region }}{% endif %} Happenings</h1>
   <a href="{% url 'add_event' %}" class="button icon-add right">Add an event</a>
+
   {% if cal_date or region %}
     <a href="{% url 'events_index' %}" class="button right">All events</a>
   {% endif %}
+
   {% if object_list %}
     <div class="tabs">
       <ul>
@@ -32,6 +34,7 @@
             {% include "happenings/includes/event_info.html" %}
           {% endfor %}
         </div> <!-- /vcalendar -->
+
         <div>
           <p>{% include 'happenings/includes/event_selects.html' %}</p>
           <p>{% load_past_events %}</p>
