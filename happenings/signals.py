@@ -1,4 +1,3 @@
-from .models import Update
 
 def update_time(sender, **kwargs):
     """
@@ -6,5 +5,6 @@ def update_time(sender, **kwargs):
     """
     comment = kwargs['instance']
     if comment.content_type.app_label == "happenings" and comment.content_type.name=="Update":
+       from .models import Update
        item=Update.objects.get(id=comment.object_pk)
        item.save()
