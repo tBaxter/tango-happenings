@@ -18,6 +18,7 @@
       </span>
     {% endifchanged %}
   </section>
+
   <section class="event_info">
     {% if event.subhead %}
       <h2 class="kicker">{{ event.subhead|typogrify }}</h2>
@@ -29,13 +30,13 @@
       <span class="meta time">
         {{ object.start_time }}
         {% if object.end_time %} to {{ object.end_time }}{% endif %}
-      </span> 
+      </span>
     {% endif %}
     <div class="hcard">
       {% if object.venue %}<h3 class="fn org kicker">{{ object.venue }}</h3>{% endif %}
       <span class="adr meta location block">
         {% if object.address %}
-          <span class="street-address">{{ object.address }}</span>, 
+          <span class="street-address">{{ object.address }}</span>,
         {% endif %}
         <span class="locality">{{ object.city }}</span>
         <span class="region">{{ object.state }}</span>
