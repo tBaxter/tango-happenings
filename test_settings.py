@@ -3,6 +3,7 @@ SECRET_KEY = "lorem ipsum"
 INSTALLED_APPS = (
     'django.contrib.auth',
     'django.contrib.contenttypes',
+    'django.contrib.sites',
     'tango_shared',
     'happenings',
     'typogrify' # installed by shared, keeps templates happy
