@@ -1,5 +1,8 @@
 # Tango-Happenings Change log
 
+## 0.7.3
+* Work on tests and travis integration
+
 ## 0.7.2
 * Fixed problems in setup.py that were keeping dependencies from being installed.
 

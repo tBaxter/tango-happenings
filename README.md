@@ -1,6 +1,8 @@
 Tango Happenings
 =================
 
+[![Build Status](https://travis-ci.org/tBaxter/tango-happenings.svg?branch=master)](https://travis-ci.org/tBaxter/tango-happenings)
+
 A powerful Django calendar/events app. It works as part of Tango, or as a standalone app.
 
 Supports multi-day events, schedules, photos, updates, recaps and a bunch of other stuff.
