@@ -1,5 +1,5 @@
 {% if user.is_staff %}
-  <table border="1" cellpadding="4" style="border-collapse:collapse">
+  <table border="1" cellpadding="3" style="border-collapse:collapse">
   <tr>
     <th colspan="2">Winner</th>
     <th>Question</th>
@@ -7,6 +7,7 @@
     <th>email</th>
     <th>Ship to</th>
   </tr>
+
   {% for w in winners|dictsort:"question.id" %}
     <tr>
       {% with w.respondent as profile %}
