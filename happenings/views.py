@@ -275,7 +275,7 @@ def add_attending(request, slug):
     event.attending.add(request.user.id)
     event.save()
     if request.is_ajax():
-        return HttpResponse(request.user.display_name, mimetype="text/html")
+        return HttpResponse(request.user.display_name, content_type="text/html")
     return HttpResponseRedirect(reverse('event_attending_list', args=[event.slug]))
 
 
