@@ -5,6 +5,7 @@ INSTALLED_APPS = (
     'django.contrib.contenttypes',
     'tango_shared',
     'happenings',
+    'typogrify' # installed by shared
 )
 
 DATABASES = {
