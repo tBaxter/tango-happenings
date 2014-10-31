@@ -14,4 +14,6 @@ DATABASES = {
     }
 }
 
+ROOT_URLCONF = 'happenings.urls'
 SITE_ID = 1
+
