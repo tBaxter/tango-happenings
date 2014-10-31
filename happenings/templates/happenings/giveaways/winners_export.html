@@ -20,9 +20,11 @@
           {% firstof profile.full_name profile.get_full_name %}<br>
             {{ profile.street_address }}<br>
             {{ profile.city }} {{ profile.state }} {{ profile.zip }}
+
             {% if w.notes %}
               <hr>{{ w.notes|linebreaks }}
             {% else %}
+
           {% endif %}
         </td>
       {% endwith %}
