@@ -140,7 +140,7 @@ def create_ical(request, slug):
     vevent.add('dtend').value = end
     vevent.add('dtstamp').value = datetime.datetime.now()
     vevent.add('summary').value = event.name
-    response = HttpResponse(cal.serialize(), mimetype='text/calendar')
+    response = HttpResponse(cal.serialize(), content_type='text/calendar')
     response['Filename'] = 'filename.ics'
     response['Content-Disposition'] = 'attachment; filename=filename.ics'
     return response
