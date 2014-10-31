@@ -90,4 +90,4 @@ class TestHappeningsGeneralViews(TestCase):
         self.assertEquals(response['Content-Disposition'], 'attachment; filename=filename.ics')
         response_list = response.content.split('\r\n')
         self.assertEquals(response_list[0], 'BEGIN:VCALENDAR')
-        self.assertEquals(response_list[9], 'SUMMARY:Test Event')
+        self.assertEquals(response_list[11], 'SUMMARY:Test Event')
