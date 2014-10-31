@@ -4,7 +4,7 @@
   {% if latest_comments.count %}
     <h2 class="kicker">Latest Comment{{ latest_comments.count|pluralize }}</h2>
     <div{% if latest_comments.count != 1 %} class="columned phi"{% endif %}>
-    
+
       {% with latest_comments|slice:"2" as top_comments %}
         <div>
           {% for comment in top_comments %}
