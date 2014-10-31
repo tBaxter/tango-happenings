@@ -1,3 +1,5 @@
+from __future__ import print_function
+
 import calendar
 import datetime
 import vobject
@@ -305,12 +307,12 @@ def add_memory(request, slug):
         instance.event = event
         instance.save()
         msg = "Your thoughts were added. "
-        print 'attempting to get photo_list...'
+        #print('attempting to get photo_list...')
 
         if request.FILES:
-            print 'request.files: %s' % request.FILES
+            #print('request.files: %s' % request.FILES)
             photo_list = request.FILES.getlist('photos')
-            print 'photo list: %s' % photo_list
+            #print('photo list: %s' % photo_list)
             photo_count = len(photo_list)
             for upload_file in photo_list:
                 process_upload(upload_file, instance, form, event, request)
