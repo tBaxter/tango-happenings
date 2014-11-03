@@ -47,6 +47,7 @@
               <li>
                 {% with c.user as profile %}
                   <span class="meta kicker">{{ profile.display_name }}
+
                     {# handle comments not on the current object but in the list #}
                     {% if c.content_object.pk != object.pk %}
                       {% with c.content_object as content_obj %}
