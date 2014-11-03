@@ -1,5 +1,8 @@
 # Tango-Happenings Change log
 
+## 0.7.4
+* Passing tests for python 3.4 (using vobject fork)
+
 ## 0.7.3
 * Work on tests and travis integration
 
