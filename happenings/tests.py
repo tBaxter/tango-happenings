@@ -88,6 +88,6 @@ class TestHappeningsGeneralViews(TestCase):
         self.assertTrue(response['Content-Type'].startswith('text/calendar'))
         self.assertEquals(response['Filename'], 'filename.ics')
         self.assertEquals(response['Content-Disposition'], 'attachment; filename=filename.ics')
-        response_list = str(response.content).split('\r\n')
+        response_list = response.content.decode("utf-8").split('\r\n')
         self.assertEquals(response_list[0], 'BEGIN:VCALENDAR')
         #self.assertEquals(response_list[11], 'SUMMARY:Test Event')
