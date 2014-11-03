@@ -36,7 +36,9 @@
           <ul class="columned two-col">
             {% for g in giveaways %}
               <li>
-                <small class="meta block">For {{ g.number|apnumber }} {{ g.prize }}{{ g.number|pluralize }}:</small>
+                <small class="meta block">
+                  For {{ g.number|apnumber }} {{ g.prize }}{{ g.number|pluralize }}:
+                </small>
                 <a href="{% url 'giveaways' event.slug %}#g-{{ g.id }}">
                   <strong>{{ g.question }}</strong>
                 </a>
