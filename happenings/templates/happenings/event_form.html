@@ -13,7 +13,9 @@
       <form action="" enctype="multipart/form-data" method="post" class="boxedform">
         {% csrf_token %}
         {{ form.as_p }}
-        <p class="submit"><input type="submit" value="{{ form_title }}!"></p>
+        <p class="submit">
+          <input type="submit" value="{{ form_title }}">
+        </p>
       </form>
   {% else %}
     {% include "includes/signin_reg.html" %}
