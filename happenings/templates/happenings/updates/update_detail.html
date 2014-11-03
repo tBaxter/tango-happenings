@@ -10,14 +10,14 @@
   <article>
     <section class="entry-content">
       {% include "includes/top_assets.html" %}
-      
+
       <h2 class="kicker">
         <a href="{{ event.get_absolute_url }}">
           {{ event.name }}
         </a>
       </h2>
       <h1>{{ object.title }}</h1>
-      
+
       <p class="author vcard">
         <span class="fn">
           {{ object.author.display_name }}
@@ -36,7 +36,7 @@
           <ul class="columned two-col">
             {% for g in giveaways %}
               <li>
-                <small class="meta block">For {{ g.number|apnumber }} {{ g.prize }}{{ g.number|pluralize }}:</small> 
+                <small class="meta block">For {{ g.number|apnumber }} {{ g.prize }}{{ g.number|pluralize }}:</small>
                 <a href="{% url 'giveaways' event.slug %}#g-{{ g.id }}">
                   <strong>{{ g.question }}</strong>
                 </a>
@@ -45,7 +45,7 @@
           </ul>
         {% endif %}
       {% endwith %}
-      
+
       {% paginate_update object %}
 
       <a href="{% url 'event_comments' event.slug %}" class="right">
@@ -56,4 +56,3 @@
   </article>
   <hr class="clear">
 {% endblock %}
- 
