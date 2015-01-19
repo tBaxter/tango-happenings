@@ -1,5 +1,8 @@
 # Tango-Happenings Change log
 
+## 0.7.5
+* Updated to use xmltramp2
+
 ## 0.7.4
 * Passing tests for python 3.4 (using vobject fork)
 
