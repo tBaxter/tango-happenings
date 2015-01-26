@@ -1,5 +1,8 @@
 # Tango-Happenings Change log
 
+## 0.7.6
+* Removed vobject test temporarily
+
 ## 0.7.5
 * Updated to use xmltramp2
 
