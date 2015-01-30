@@ -4,6 +4,20 @@ from django.forms import ModelForm, HiddenInput, TextInput
 from .models import Event, GiveawayResponse, Memory
 
 
+class AdminAddEventForm(ModelForm):
+    class Meta:
+        model = Event
+        fields = [
+            'submitted_by', 'subhead', 'name', 'slug', 'info',
+            'start_date', 'end_date',
+            'region', 'venue',
+            'address', 'city', 'state', 'zipcode',
+            'phone', 'website',
+            'admin_notes', 'featured', 'has_playlist',
+            'offsite_tickets', 'ticket_sales_end', 'related_events'
+        ]
+
+
 class EventForm(ModelForm):
     class Meta:
         model = Event
@@ -11,7 +25,7 @@ class EventForm(ModelForm):
             'name', 'info',
             'start_date', 'end_date',
             'region', 'venue',
-            'city', 'state', 'zipcode',
+            'address', 'city', 'state', 'zipcode',
             'website'
         ]
         widgets = {

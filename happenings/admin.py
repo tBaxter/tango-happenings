@@ -2,6 +2,7 @@ from django.contrib import admin
 
 from .models import Image, BulkEventImageUpload, UpdateImage, EventVideo
 from .models import Event, Update, Memory, ExtraInfo, Giveaway, GiveawayResponse, Schedule
+from .forms import AdminAddEventForm
 
 
 class ExtraInfoAdmin(admin.ModelAdmin):
@@ -76,19 +77,45 @@ class EventAdmin(admin.ModelAdmin):
         ExtraInfoInline,
         ScheduleInline,
     ]
-    fieldsets = (
-        ('General info', {'fields': ('submitted_by', 'subhead', 'name', 'featured', 'has_playlist', 'info', 'recap', 'related_events')}),
-        ('Dates', {'fields': ('start_date', 'end_date',)}),
-        ('Venue/Location', {'fields': ('region', 'venue', 'address', 'city', 'state', 'zipcode', 'website', 'phone', )}),
-        ('Ticketing', {'fields': ('offsite_tickets', 'ticket_sales_end'), 'classes': ['collapse']}),
-        ('Staff info', {'fields': ('admin_notes', 'approved', 'slug'), 'classes': ['collapse']}),
-    )
+
 
     def formfield_for_foreignkey(self, db_field, request, **kwargs):
         if db_field.name == 'submitted_by':
             kwargs['initial'] = request.user.id
             return db_field.formfield(**kwargs)
         return super(EventAdmin, self).formfield_for_foreignkey(db_field, request, **kwargs)
+
+    def get_form(self, request, obj=None, **kwargs):
+        if obj is None:
+            return AdminAddEventForm
+        else:
+            return super(EventAdmin, self).get_form(request, obj, **kwargs)
+
+    def get_fieldsets(self, request, obj=None):
+        if obj is None:
+            fieldsets = (
+                ('General info', {'fields': ('submitted_by', 'subhead', 'name', 'info', ('featured', 'has_playlist'))}),
+                ('Dates', {'fields': (('start_date', 'end_date'))}),
+                ('Related', {'fields': ('related_events')}),
+                ('Venue/Location', {'fields': ('region', 'venue', 'address', ('city', 'state', 'zipcode'), ('website', 'phone'))}),
+                ('Ticketing', {'fields': ('offsite_tickets', 'ticket_sales_end'), 'classes': ['collapse']}),
+                ('Staff info', {'fields': ('admin_notes', 'approved', 'slug'), 'classes': ['collapse']}),
+            )
+        else:
+            fieldsets = (
+                ('General info', {'fields': ('submitted_by', 'subhead', 'name', 'info', ('featured', 'has_playlist')), 'classes': ['collapse']}),
+                ('Dates', {'fields': (('start_date', 'end_date')), 'classes': ['collapse']}),
+
+                ('Additional info', {'fields': ('recap')}),
+                ('Related', {'fields': ('related_events'), 'classes': ['collapse']}),
+
+                ('Venue/Location', {'fields': ('region', 'venue', 'address', ('city', 'state', 'zipcode'), ('website', 'phone')), 'classes': ['collapse']}),
+                ('Ticketing', {'fields': ('offsite_tickets', 'ticket_sales_end'), 'classes': ['collapse']}),
+                ('Staff info', {'fields': ('admin_notes', 'approved', 'slug'), 'classes': ['collapse']}),
+            )
+        return fieldsets
+
+
 
 
 class UpdateAdmin(admin.ModelAdmin):

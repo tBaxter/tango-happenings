@@ -1,5 +1,8 @@
 # Tango-Happenings Change log
 
+## 0.8.0
+* Clearer admin fieldsets and improved how-to
+
 ## 0.7.6
 * Removed vobject test temporarily
 
