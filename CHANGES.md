@@ -1,5 +1,14 @@
 # Tango-Happenings Change log
 
+## 0.8.2
+* Incremented vobject version to force local usage.
+
+## 0.8.2
+* Cleaned up some fieldset issues
+
+## 0.8.1
+* Attempting to resolve a fields issue
+
 ## 0.8.0
 * Clearer admin fieldsets and improved how-to
 

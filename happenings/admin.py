@@ -78,7 +78,6 @@ class EventAdmin(admin.ModelAdmin):
         ScheduleInline,
     ]
 
-
     def formfield_for_foreignkey(self, db_field, request, **kwargs):
         if db_field.name == 'submitted_by':
             kwargs['initial'] = request.user.id
@@ -103,15 +102,32 @@ class EventAdmin(admin.ModelAdmin):
             )
         else:
             fieldsets = (
-                ('General info', {'fields': ('submitted_by', 'subhead', 'name', 'info', ('featured', 'has_playlist')), 'classes': ['collapse']}),
-                ('Dates', {'fields': (('start_date', 'end_date')), 'classes': ['collapse']}),
+                ('General info', {
+                    'fields': ('submitted_by', 'subhead', 'name', 'info', ('featured', 'has_playlist')),
+                    'classes': ['collapse']
+                }),
+                ('Dates', {
+                    'fields': (('start_date', 'end_date')),
+                    'classes': ['collapse']
+                }),
+                ('Related', {
+                    'fields': ('related_events',),
+                    'classes': ['collapse']
+                }),
+                ('Venue/Location', {
+                    'fields': ('region', 'venue', 'address', ('city', 'state', 'zipcode'), ('website', 'phone')),
+                    'classes': ['collapse']
+                }),
+                ('Ticketing', {
+                    'fields': ('offsite_tickets', 'ticket_sales_end'),
+                    'classes': ['collapse']
+                }),
+                ('Staff info',   {
+                    'fields': ('admin_notes', 'approved', 'slug'),
+                    'classes': ['collapse']
+                }),
+                ('Additional info', {'fields': ('recap',)}),
 
-                ('Additional info', {'fields': ('recap')}),
-                ('Related', {'fields': ('related_events'), 'classes': ['collapse']}),
-
-                ('Venue/Location', {'fields': ('region', 'venue', 'address', ('city', 'state', 'zipcode'), ('website', 'phone')), 'classes': ['collapse']}),
-                ('Ticketing', {'fields': ('offsite_tickets', 'ticket_sales_end'), 'classes': ['collapse']}),
-                ('Staff info', {'fields': ('admin_notes', 'approved', 'slug'), 'classes': ['collapse']}),
             )
         return fieldsets
 

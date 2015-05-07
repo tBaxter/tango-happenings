@@ -14,7 +14,7 @@ class AdminAddEventForm(ModelForm):
             'address', 'city', 'state', 'zipcode',
             'phone', 'website',
             'admin_notes', 'featured', 'has_playlist',
-            'offsite_tickets', 'ticket_sales_end', 'related_events'
+            'offsite_tickets', 'ticket_sales_end', 'related_events',
         ]
 
 
@@ -25,8 +25,7 @@ class EventForm(ModelForm):
             'name', 'info',
             'start_date', 'end_date',
             'region', 'venue',
-            'address', 'city', 'state', 'zipcode',
-            'website'
+            'address', 'city', 'state', 'zipcode', 'website'
         ]
         widgets = {
             'start_date': TextInput(attrs={'class': 'datepicker'}),
