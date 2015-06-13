@@ -1,5 +1,15 @@
 # Tango-Happenings Change log
 
+
+## 0.8.7
+* Sorting out EventRecapForm fields for 1.8
+
+## 0.8.6
+* Reverted to vobject.
+
+## 0.8.5
+* Cleanup on form meta.
+
 ## 0.8.4
 * Attempting to force vobject version from pip.
 

@@ -50,8 +50,8 @@ class EventUpdateForm(EventForm):
 
 
 class EventRecapForm(EventUpdateForm):
-    class Meta(EventUpdateForm.Meta):
-        fields = EventUpdateForm.Meta.fields.append('recap')
+    class Meta:
+        fields = EventUpdateForm.Meta.fields + ['recap']
 
 
 class GiveawayResponseForm(ModelForm):

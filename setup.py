@@ -7,7 +7,7 @@ with open('docs/requirements.txt') as f:
 
 setup(
     name='tango-happenings',
-    version='0.8.3',
+    version='0.8.7',
     author=u'Tim Baxter',
     author_email='mail.baxter@gmail.com',
     url='https://github.com/tBaxter/django-happenings',
@@ -16,7 +16,7 @@ setup(
     long_description=open('README.md').read(),
     zip_safe=False,
     dependency_links = [
-        'http://github.com/tBaxter/vobject/tarball/master#egg=vobject',
+        'https://github.com/tBaxter/vobject/tarball/master#egg=vobject',
     ],
     packages=find_packages(),
     include_package_data=True,
