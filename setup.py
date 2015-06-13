@@ -16,7 +16,7 @@ setup(
     long_description=open('README.md').read(),
     zip_safe=False,
     dependency_links = [
-        'http://github.com/tBaxter/vobject/tarball/master#egg=vobject',
+        'http://github.com/tBaxter/vobject/tarball/master#egg=vobject3',
     ],
     packages=find_packages(),
     include_package_data=True,

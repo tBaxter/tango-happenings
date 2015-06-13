@@ -1,6 +1,9 @@
 # Tango-Happenings Change log
 
-## 0.8.2
+## 0.8.4
+* Attempting to force vobject version from pip.
+
+## 0.8.3
 * Incremented vobject version to force local usage.
 
 ## 0.8.2
