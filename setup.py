@@ -15,9 +15,12 @@ setup(
     description='Reusable Django events and calendaring.',
     long_description=open('README.md').read(),
     zip_safe=False,
-    install_requires=required,
+    dependency_links = [
+        'http://github.com/tBaxter/vobject/tarball/master#egg=vobject',
+    ],
     packages=find_packages(),
     include_package_data=True,
+    install_requires=required,
     classifiers=[
         "Development Status :: 4 - Beta",
         "Environment :: Web Environment",
