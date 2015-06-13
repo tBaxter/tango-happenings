@@ -2,4 +2,4 @@
 tango-shared-core>=0.6
 tango-comments>=0.1
 
-git+https://github.com/tBaxter/vobject.git#egg=vobject
+-e git+https://github.com/tBaxter/vobject/#egg=vobject
