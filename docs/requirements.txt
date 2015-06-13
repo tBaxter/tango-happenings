@@ -1,4 +1,5 @@
-vobject3
 
 tango-shared-core>=0.6
 tango-comments>=0.1
+
+-e git+https://github.com/tBaxter/vobject/tarball/master#egg=vobject
