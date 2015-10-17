@@ -13,7 +13,7 @@ class AdminAddEventForm(ModelForm):
             'region', 'venue',
             'address', 'city', 'state', 'zipcode',
             'phone', 'website',
-            'admin_notes', 'featured', '',
+            'admin_notes', 'featured',
             'offsite_tickets', 'ticket_sales_end', 'related_events',
         ]
 
