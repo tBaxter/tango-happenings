@@ -13,7 +13,7 @@ class AdminAddEventForm(ModelForm):
             'region', 'venue',
             'address', 'city', 'state', 'zipcode',
             'phone', 'website',
-            'admin_notes', 'featured', 'has_playlist',
+            'admin_notes', 'featured', '',
             'offsite_tickets', 'ticket_sales_end', 'related_events',
         ]
 
@@ -38,8 +38,8 @@ class AddEventForm(EventForm):
         """
         Validate that an event with this name on this date does not exist.
         """
-        cleaned_data = super(EventForm, self).clean()
-        if Event.objects.filter(name=cleaned_data['name'], start_date=cleaned_data['start_date']).count():
+        cleaned = super(EventForm, self).clean()
+        if Event.objects.filter(name=cleaned['name'], start_date=cleaned['start_date']).count():
             raise forms.ValidationError(u'This event appears to be in the database already.')
         return cleaned_data
 
@@ -63,14 +63,17 @@ class GiveawayResponseForm(ModelForm):
 class MemoryForm(ModelForm):
     photos = forms.FileField(
         required=False,
-        label = "Or upload your photos(s)",
-        help_text='<span class="meta">You can upload one or several JPG files. Be kind, this isn\'t photobucket.</span>',
+        label="Or upload your photos(s)",
+        help_text="You can upload one or several JPG files. Be kind, this isn't photobucket.",
         widget=forms.FileInput(attrs={'multiple': 'multiple'})
     )
     upload_caption = forms.CharField(
         label="Caption",
         required=False,
-        help_text="You can add an optional caption. Note: if you are uploading multiple photos, one caption will be used.",
+        help_text="""
+            You can add an optional caption.
+            Note: if you are uploading multiple photos, one caption will be used.
+        """,
         widget=forms.TextInput()
     )
 
@@ -84,7 +87,7 @@ class MemoryForm(ModelForm):
 
     class Meta:
         model = Memory
-        fields = ['offsite_photos', 'photos', 'upload_caption',]
+        fields = ['offsite_photos', 'photos', 'upload_caption']
         widgets = {
             'photos': HiddenInput()
         }

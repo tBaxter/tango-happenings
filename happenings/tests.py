@@ -59,7 +59,6 @@ class TestHappeningsGeneralViews(TestCase):
         self.assertTrue('form' in response.context)
         new_event = {
             "featured": True,
-            "has_playlist": False,
             "submitted_by": 1,
             "add_date": "2013-08-05",
             "slug": "new-test-event",

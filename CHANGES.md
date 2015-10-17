@@ -1,5 +1,10 @@
 # Tango-Happenings Change log
 
+## 0.10.0
+* Removed remainders of playlists.
+
+## 0.9.0
+* Safer static asset handling
 
 ## 0.8.7
 * Sorting out EventRecapForm fields for 1.8

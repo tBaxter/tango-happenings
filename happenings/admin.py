@@ -20,7 +20,7 @@ class ImageInline(admin.TabularInline):
 
 
 class EventBulkInline(admin.TabularInline):
-    model   = BulkEventImageUpload
+    model = BulkEventImageUpload
     max_num = 1
 
 
@@ -50,25 +50,25 @@ class ScheduleInline(admin.TabularInline):
 
 
 class GiveawayAdmin(admin.ModelAdmin):
-    date_hierarchy      = 'pub_time'
-    list_display        = ('question', 'prize', 'event', 'closed',)
-    list_filter         = ('closed', 'event')
+    date_hierarchy = 'pub_time'
+    list_display = ('question', 'prize', 'event', 'closed',)
+    list_filter = ('closed', 'event')
     inlines = [
         GiveawayResponseInline,
     ]
     fieldsets = (
-      ('', {'fields': ('event', )}),
-      ('Q and A', {'fields': ('question', 'long_q', 'explanation')}),
-      ('For', {'fields': (('number', 'prize'), 'closed', )}),
+        ('', {'fields': ('event', )}),
+        ('Q and A', {'fields': ('question', 'long_q', 'explanation')}),
+        ('For', {'fields': (('number', 'prize'), 'closed', )}),
     )
 
 
 class EventAdmin(admin.ModelAdmin):
-    search_fields       = ['name', ]
-    list_display        = ('name', 'approved', 'featured', 'submitted_by', 'start_date',)
-    list_filter         = ('featured', 'region')
-    date_hierarchy      = 'start_date'
-    filter_horizontal   = ('attending', 'related_events')
+    search_fields = ['name', ]
+    list_display = ('name', 'approved', 'featured', 'submitted_by', 'start_date',)
+    list_filter = ('featured', 'region')
+    date_hierarchy = 'start_date'
+    filter_horizontal = ('attending', 'related_events')
     prepopulated_fields = {'slug': ('name',)}
     inlines = [
         ImageInline,
@@ -93,17 +93,33 @@ class EventAdmin(admin.ModelAdmin):
     def get_fieldsets(self, request, obj=None):
         if obj is None:
             fieldsets = (
-                ('General info', {'fields': ('submitted_by', 'subhead', 'name', 'info', ('featured', 'has_playlist'))}),
+                ('General info', {
+                    'fields': ('submitted_by', 'subhead', 'name', 'info', 'featured')
+                }),
                 ('Dates', {'fields': (('start_date', 'end_date'))}),
                 ('Related', {'fields': ('related_events')}),
-                ('Venue/Location', {'fields': ('region', 'venue', 'address', ('city', 'state', 'zipcode'), ('website', 'phone'))}),
-                ('Ticketing', {'fields': ('offsite_tickets', 'ticket_sales_end'), 'classes': ['collapse']}),
-                ('Staff info', {'fields': ('admin_notes', 'approved', 'slug'), 'classes': ['collapse']}),
+                ('Venue/Location', {
+                    'fields': (
+                        'region',
+                        'venue',
+                        'address',
+                        ('city', 'state', 'zipcode'),
+                        ('website', 'phone')
+                    )
+                }),
+                ('Ticketing', {
+                    'fields': ('offsite_tickets', 'ticket_sales_end'),
+                    'classes': ['collapse']
+                }),
+                ('Staff info', {
+                    'fields': ('admin_notes', 'approved', 'slug'),
+                    'classes': ['collapse']
+                }),
             )
         else:
             fieldsets = (
                 ('General info', {
-                    'fields': ('submitted_by', 'subhead', 'name', 'info', ('featured', 'has_playlist')),
+                    'fields': ('submitted_by', 'subhead', 'name', 'info', 'featured'),
                     'classes': ['collapse']
                 }),
                 ('Dates', {
@@ -115,7 +131,13 @@ class EventAdmin(admin.ModelAdmin):
                     'classes': ['collapse']
                 }),
                 ('Venue/Location', {
-                    'fields': ('region', 'venue', 'address', ('city', 'state', 'zipcode'), ('website', 'phone')),
+                    'fields': (
+                        'region',
+                        'venue',
+                        'address',
+                        ('city', 'state', 'zipcode'),
+                        ('website', 'phone')
+                    ),
                     'classes': ['collapse']
                 }),
                 ('Ticketing', {
@@ -130,8 +152,6 @@ class EventAdmin(admin.ModelAdmin):
 
             )
         return fieldsets
-
-
 
 
 class UpdateAdmin(admin.ModelAdmin):

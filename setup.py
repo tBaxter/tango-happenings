@@ -7,7 +7,7 @@ with open('docs/requirements.txt') as f:
 
 setup(
     name='tango-happenings',
-    version='0.8.7',
+    version='0.10.0',
     author=u'Tim Baxter',
     author_email='mail.baxter@gmail.com',
     url='https://github.com/tBaxter/django-happenings',
@@ -15,7 +15,7 @@ setup(
     description='Reusable Django events and calendaring.',
     long_description=open('README.md').read(),
     zip_safe=False,
-    dependency_links = [
+    dependency_links=[
         'https://github.com/tBaxter/vobject/tarball/master#egg=vobject',
     ],
     packages=find_packages(),

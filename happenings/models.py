@@ -65,7 +65,7 @@ class EventManager(models.Manager):
 class Event(models.Model):
     submitted_by = models.ForeignKey(
         UserModel,
-        limit_choices_to = {'is_active': True},
+        limit_choices_to={'is_active': True},
         related_name="event_submitter"
     )
     name = models.CharField('Event name', max_length=200)
@@ -103,10 +103,7 @@ class Event(models.Model):
     approved = models.BooleanField(default=True)
     geocode = models.CharField(max_length=200, null=True, blank=True, editable=False)
     featured = models.BooleanField(default=False, help_text="Check for featured events")
-    has_playlist = models.BooleanField(
-        default=True,
-        help_text="If checked, playlist submissions will be requested."
-    )
+
     offsite_tickets = models.URLField(
         blank=True,
         null=True,
@@ -117,7 +114,7 @@ class Event(models.Model):
         "self",
         blank=True,
         related_name="similar_events",
-        limit_choices_to = {'featured': True}
+        limit_choices_to={'featured': True}
     )
     attending = models.ManyToManyField(UserModel, blank=True, null=True, related_name="attendees")
 
@@ -185,10 +182,14 @@ class Event(models.Model):
         """
         Returns combined list of event and update comments.
         """
-        ctype         = ContentType.objects.get(app_label__exact="happenings", name__exact='event')
-        update_ctype  = ContentType.objects.get(app_label__exact="happenings", name__exact='update')
-        update_ids    = self.update_set.values_list('id', flat=True)
-        return Comment.objects.filter(Q(content_type=ctype.id, object_pk=self.id) | Q(content_type=update_ctype.id, object_pk__in=update_ids))
+        ctype = ContentType.objects.get(app_label__exact="happenings", name__exact='event')
+        update_ctype = ContentType.objects.get(app_label__exact="happenings", name__exact='update')
+        update_ids = self.update_set.values_list('id', flat=True)
+
+        return Comment.objects.filter(
+            Q(content_type=ctype.id, object_pk=self.id) |
+            Q(content_type=update_ctype.id, object_pk__in=update_ids)
+        )
 
     def get_latest_comments(self):
         """
@@ -209,23 +210,37 @@ class Event(models.Model):
             return None
 
     def get_all_images(self):
-        self_imgs     = self.image_set.all()
-        update_ids    = self.update_set.values_list('id', flat=True)
-        u_images      = UpdateImage.objects.filter(update__id__in=update_ids)
+        """
+        Returns chained list of event and update images.
+        """
+        self_imgs = self.image_set.all()
+        update_ids = self.update_set.values_list('id', flat=True)
+        u_images = UpdateImage.objects.filter(update__id__in=update_ids)
+
         return list(chain(self_imgs, u_images))
 
     def get_all_images_count(self):
-        self_imgs     = self.image_set.count()
-        update_ids    = self.update_set.values_list('id', flat=True)
-        u_images      = UpdateImage.objects.filter(update__id__in=update_ids).count()
+        """
+        Gets count of all images from both event and updates.
+        """
+        self_imgs = self.image_set.count()
+        update_ids = self.update_set.values_list('id', flat=True)
+        u_images = UpdateImage.objects.filter(update__id__in=update_ids).count()
         count = self_imgs + u_images
+
         return count
 
     def get_top_assets(self):
+        """
+        Gets images and videos to populate top assets.
+
+        Map is built separately.
+        """
         images = self.get_all_images()[0:14]
         video = []
         if 'video' in settings.INSTALLED_APPS:
-            video  = self.eventvideo_set.all()[0:10]
+            video = self.eventvideo_set.all()[0:10]
+
         return list(chain(images, video))[0:15]
 
     def get_giveaways(self):
@@ -277,24 +292,42 @@ class Image(ContentImage):
 
 
 class Schedule(models.Model):
-    special_event = models.ForeignKey(Event, related_name='schedule', verbose_name=('Event Schedule'))
-    event         = models.CharField("Scheduled Event", max_length=200)
-    start         = models.DateTimeField('Start time')
-    end           = models.DateTimeField('End time', blank=True, null=True)
-    show_time     = models.BooleanField(default=True, help_text="Uncheck to hide time and only show date")
-    description   = models.CharField(max_length=400, blank=True, null=True)
-    link          = models.CharField(max_length=100, blank=True, null=True)
+    special_event = models.ForeignKey(
+        Event,
+        related_name='schedule',
+        verbose_name=('Event Schedule')
+    )
+    event = models.CharField("Scheduled Event", max_length=200)
+    start = models.DateTimeField('Start time')
+    end = models.DateTimeField('End time', blank=True, null=True)
+    show_time = models.BooleanField(
+        default=True,
+        help_text="Uncheck to hide time and only show date"
+    )
+    description = models.CharField(max_length=400, blank=True, null=True)
+    link = models.CharField(max_length=100, blank=True, null=True)
 
 
 class Giveaway(models.Model):
-    event       = models.ForeignKey(Event, limit_choices_to = {'featured': True})
-    question    = models.CharField(max_length=200)
-    long_q      = models.TextField("Additional info", blank=True, help_text="If you'd like to clarify or expound. This information will be shown while the giveaway is active.")
-    explanation = models.TextField("Answer and/or Explanation", blank=True, help_text="This will be shown when the giveaway is closed")
-    pub_time    = models.DateTimeField(auto_now_add=True)
-    prize       = models.CharField(max_length=255)
-    number      = models.IntegerField(default=1)
-    closed      = models.BooleanField(default=False)
+    event = models.ForeignKey(Event, limit_choices_to={'featured': True})
+    question = models.CharField(max_length=200)
+    long_q = models.TextField(
+        "Additional info",
+        blank=True,
+        help_text="""
+            If you'd like to clarify or expound.
+            This information will be shown while the giveaway is active.
+            """
+    )
+    explanation = models.TextField(
+        "Answer and/or Explanation",
+        blank=True,
+        help_text="This will be shown when the giveaway is closed."
+    )
+    pub_time = models.DateTimeField(auto_now_add=True)
+    prize = models.CharField(max_length=255)
+    number = models.IntegerField(default=1)
+    closed = models.BooleanField(default=False)
 
     def __unicode__(self):
         return unicode(self.question)
@@ -308,12 +341,19 @@ class Giveaway(models.Model):
 
 
 class GiveawayResponse(models.Model):
-    question   = models.ForeignKey(Giveaway)
-    answer     = models.TextField()
-    respondent = models.ForeignKey(UserModel, limit_choices_to = {'is_active': True}, editable=False, related_name="giveaway_respondent", blank=True, null=True)
-    correct    = models.BooleanField(default=False)
-    notes      = models.CharField(blank=True, max_length=255)
-    submitted  = models.DateTimeField(auto_now_add=True)
+    question = models.ForeignKey(Giveaway)
+    answer = models.TextField()
+    respondent = models.ForeignKey(
+        UserModel,
+        limit_choices_to={'is_active': True},
+        editable=False,
+        related_name="giveaway_respondent",
+        blank=True,
+        null=True
+    )
+    correct = models.BooleanField(default=False)
+    notes = models.CharField(blank=True, max_length=255)
+    submitted = models.DateTimeField(auto_now_add=True)
 
     def __unicode__(self):
         return unicode(self.respondent)
@@ -323,9 +363,9 @@ class Update(models.Model):
     """
     Allows updating the event in near real-time, with blog-style content updates.
     """
-    event = models.ForeignKey(Event, limit_choices_to = {'featured': True}, db_index=True)
+    event = models.ForeignKey(Event, limit_choices_to={'featured': True}, db_index=True)
     title = models.CharField("Update title", max_length=200)
-    author = models.ForeignKey(UserModel, limit_choices_to = {'is_staff': True})
+    author = models.ForeignKey(UserModel, limit_choices_to={'is_staff': True})
     update = models.TextField()
     update_formatted = models.TextField(blank=True, editable=False)
     pub_time = models.DateTimeField(auto_now_add=True)
@@ -337,7 +377,12 @@ class Update(models.Model):
             Giveaways that aren't attached to an update will be still be attached to the event."""
     )
     last_updated = models.DateTimeField(auto_now=True)
-    audio = models.FileField(upload_to='audio/events/special/', blank=True, null=True, help_text="Should be MP3 format")
+    audio = models.FileField(
+        upload_to='audio/events/special/',
+        blank=True,
+        null=True,
+        help_text="Should be MP3 format"
+    )
 
     def __unicode__(self):
         return unicode(self.title)
@@ -387,9 +432,22 @@ class Memory(BaseUserContentModel):
     """
     Allows users to post their thoughts and memories on an event.
     """
-    event = models.ForeignKey(Event, verbose_name="remembered_event", limit_choices_to = {'featured': True})
-    photos = models.ManyToManyField(Image, null=True, blank=True, help_text="Optional. Upload some images. Be kind, this isn't Flickr.")
-    offsite_photos = models.URLField(null=True, blank=True, help_text="If you've already uploaded photos somewhere else, you can give the gallery URL here.")
+    event = models.ForeignKey(
+        Event,
+        verbose_name="remembered_event",
+        limit_choices_to={'featured': True}
+    )
+    photos = models.ManyToManyField(
+        Image,
+        null=True,
+        blank=True,
+        help_text="Optional. Upload some images. Be kind, this isn't Flickr."
+    )
+    offsite_photos = models.URLField(
+        null=True,
+        blank=True,
+        help_text="If you've already uploaded photos somewhere, you can give the gallery URL here."
+    )
 
     class Meta:
         verbose_name = "memory"
@@ -414,8 +472,11 @@ class BulkEventImageUpload(models.Model):
     """
     Allows zip file multi-image upload in admin.
     """
-    zip_file  = models.FileField(upload_to= "temp/", help_text='Select a .zip file of images to upload.')
-    event     = models.ForeignKey(Event)
+    zip_file = models.FileField(
+        upload_to="temp/",
+        help_text='Select a .zip file of images to upload.'
+    )
+    event = models.ForeignKey(Event)
 
     def save(self, *args, **kwargs):
         zfile = zipfile.ZipFile(self.zip_file, 'r')
@@ -423,11 +484,15 @@ class BulkEventImageUpload(models.Model):
         if bad_file:  # how can we pass this error back to the admin form?
             raise Exception('"{}" in the .zip archive is corrupt.'.format(bad_file))
         # why are we NOT using threading?
-        # for a rundown on threading, see: http://www.ibm.com/developerworks/aix/library/au-threadingpython/
+        # for a rundown on threading, see:
+        # http://www.ibm.com/developerworks/aix/library/au-threadingpython/
         # args are parent, zip file, destination, child
-        #t = threading.Thread(target=process_upload, args=[self.event, zfile, "img/events/special/", Image])
-        #t.setDaemon(False)
-        #t.start()
+        # t = threading.Thread(
+        #    target=process_upload,
+        #    args=[self.event, zfile, "img/events/special/", Image]
+        # )
+        # t.setDaemon(False)
+        # t.start()
         this_dir = '{}/{}/'.format(now.year, now.month)  # make sure we have a dir to put these in.
         dirstring = "img/events/special/{}".format(this_dir)
 
@@ -454,8 +519,8 @@ class BulkEventImageUpload(models.Model):
                         Image.objects.get(image=dirstring + clean_filename)
                     except Image.DoesNotExist:
                         new_img = Image(
-                            event   = self.event,
-                            image   = img_file,
+                            event=self.event,
+                            image=img_file,
                         )
                         new_img.save()
         return  # note that we're not actually saving the zip. No good reason to.
