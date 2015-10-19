@@ -1,5 +1,8 @@
 # Tango-Happenings Change log
 
+## 0.11.0
+* Removed remainders of giveaways.
+
 ## 0.10.0
 * Removed remainders of playlists.
 
