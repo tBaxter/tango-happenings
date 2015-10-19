@@ -1,7 +1,7 @@
 from django.contrib import admin
 
 from .models import Image, BulkEventImageUpload, UpdateImage, EventVideo
-from .models import Event, Update, Memory, ExtraInfo, Giveaway, GiveawayResponse, Schedule
+from .models import Event, Update, Memory, ExtraInfo, Schedule
 from .forms import AdminAddEventForm
 
 
@@ -30,15 +30,6 @@ class UpdateImageInline(admin.TabularInline):
     extra = 1
 
 
-class GiveawayResponseInline(admin.TabularInline):
-    model = GiveawayResponse
-
-
-class GiveawayInline(admin.TabularInline):
-    model = Giveaway
-    extra = 1
-
-
 class VideoInline(admin.TabularInline):
     model = EventVideo
     extra = 1
@@ -47,20 +38,6 @@ class VideoInline(admin.TabularInline):
 class ScheduleInline(admin.TabularInline):
     model = Schedule
     extra = 3
-
-
-class GiveawayAdmin(admin.ModelAdmin):
-    date_hierarchy = 'pub_time'
-    list_display = ('question', 'prize', 'event', 'closed',)
-    list_filter = ('closed', 'event')
-    inlines = [
-        GiveawayResponseInline,
-    ]
-    fieldsets = (
-        ('', {'fields': ('event', )}),
-        ('Q and A', {'fields': ('question', 'long_q', 'explanation')}),
-        ('For', {'fields': (('number', 'prize'), 'closed', )}),
-    )
 
 
 class EventAdmin(admin.ModelAdmin):
@@ -163,7 +140,6 @@ class UpdateAdmin(admin.ModelAdmin):
 
     list_display = ('title', 'pub_time',)
     list_filter = ('event',)
-    filter_horizontal = ('giveaway',)
 
     def formfield_for_foreignkey(self, db_field, request, **kwargs):
         if db_field.name == 'author':
@@ -185,5 +161,4 @@ class MemoryAdmin(admin.ModelAdmin):
 admin.site.register(Event, EventAdmin)
 admin.site.register(Update, UpdateAdmin)
 admin.site.register(ExtraInfo, ExtraInfoAdmin)
-admin.site.register(Giveaway, GiveawayAdmin)
 admin.site.register(Memory, MemoryAdmin)

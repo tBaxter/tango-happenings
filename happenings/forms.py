@@ -1,7 +1,7 @@
 from django import forms
 from django.forms import ModelForm, HiddenInput, TextInput
 
-from .models import Event, GiveawayResponse, Memory
+from .models import Event, Memory
 
 
 class AdminAddEventForm(ModelForm):
@@ -41,7 +41,7 @@ class AddEventForm(EventForm):
         cleaned = super(EventForm, self).clean()
         if Event.objects.filter(name=cleaned['name'], start_date=cleaned['start_date']).count():
             raise forms.ValidationError(u'This event appears to be in the database already.')
-        return cleaned_data
+        return cleaned
 
 
 class EventUpdateForm(EventForm):
@@ -52,12 +52,6 @@ class EventUpdateForm(EventForm):
 class EventRecapForm(EventUpdateForm):
     class Meta:
         fields = EventUpdateForm.Meta.fields + ['recap']
-
-
-class GiveawayResponseForm(ModelForm):
-    class Meta:
-        model = GiveawayResponse
-        fields = ['answer']
 
 
 class MemoryForm(ModelForm):

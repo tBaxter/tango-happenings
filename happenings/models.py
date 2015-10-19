@@ -243,9 +243,6 @@ class Event(models.Model):
 
         return list(chain(images, video))[0:15]
 
-    def get_giveaways(self):
-        return self.giveaway_set.filter(closed=False)
-
     def update_count(self):
         return self.update_set.count()
 
@@ -308,57 +305,6 @@ class Schedule(models.Model):
     link = models.CharField(max_length=100, blank=True, null=True)
 
 
-class Giveaway(models.Model):
-    event = models.ForeignKey(Event, limit_choices_to={'featured': True})
-    question = models.CharField(max_length=200)
-    long_q = models.TextField(
-        "Additional info",
-        blank=True,
-        help_text="""
-            If you'd like to clarify or expound.
-            This information will be shown while the giveaway is active.
-            """
-    )
-    explanation = models.TextField(
-        "Answer and/or Explanation",
-        blank=True,
-        help_text="This will be shown when the giveaway is closed."
-    )
-    pub_time = models.DateTimeField(auto_now_add=True)
-    prize = models.CharField(max_length=255)
-    number = models.IntegerField(default=1)
-    closed = models.BooleanField(default=False)
-
-    def __unicode__(self):
-        return unicode(self.question)
-
-    class Meta:
-        ordering = ['-id']
-        get_latest_by = "id"
-
-    def get_respondents_list(self):
-        return self.giveawayresponse_set.value_list('respondent', flat=True)
-
-
-class GiveawayResponse(models.Model):
-    question = models.ForeignKey(Giveaway)
-    answer = models.TextField()
-    respondent = models.ForeignKey(
-        UserModel,
-        limit_choices_to={'is_active': True},
-        editable=False,
-        related_name="giveaway_respondent",
-        blank=True,
-        null=True
-    )
-    correct = models.BooleanField(default=False)
-    notes = models.CharField(blank=True, max_length=255)
-    submitted = models.DateTimeField(auto_now_add=True)
-
-    def __unicode__(self):
-        return unicode(self.respondent)
-
-
 class Update(models.Model):
     """
     Allows updating the event in near real-time, with blog-style content updates.
@@ -369,13 +315,6 @@ class Update(models.Model):
     update = models.TextField()
     update_formatted = models.TextField(blank=True, editable=False)
     pub_time = models.DateTimeField(auto_now_add=True)
-    giveaway = models.ManyToManyField(
-        Giveaway,
-        null=True,
-        blank=True,
-        help_text="""Optional. Use this if you want to attach a giveaway to this update.
-            Giveaways that aren't attached to an update will be still be attached to the event."""
-    )
     last_updated = models.DateTimeField(auto_now=True)
     audio = models.FileField(
         upload_to='audio/events/special/',
@@ -415,12 +354,6 @@ class Update(models.Model):
 
     def get_top_assets(self):
         return self.updateimage_set.all()
-
-    def get_open_giveaways(self):
-        """
-        Returns any open giveaways for the :model:`happenings.Update`
-        """
-        return self.giveaway.filter(closed=False)
 
 
 class UpdateImage(ContentImage):

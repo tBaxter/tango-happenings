@@ -16,8 +16,8 @@ from django.template.defaultfilters import slugify
 from django.utils.decorators import method_decorator
 from django.views.generic import ListView, DetailView, UpdateView
 
-from .forms import GiveawayResponseForm, MemoryForm, AddEventForm, EventRecapForm, EventUpdateForm
-from .models import Event, Update, Giveaway, GiveawayResponse, Image, ExtraInfo, Memory
+from .forms import MemoryForm, AddEventForm, EventRecapForm, EventUpdateForm
+from .models import Event, Update, Image, ExtraInfo, Memory
 
 key = getattr(settings, 'GMAP_KEY', None)
 
@@ -28,7 +28,7 @@ class EventList(ListView):
     """
     region = state = None
     template_name = 'happenings/index.html'
-    paginate_by   = 100
+    paginate_by = 100
 
     def get_queryset(self):
         now = datetime.date.today()
@@ -54,12 +54,16 @@ class EventsForPeriod(EventList):
         self.month = int(self.kwargs['m'])
         self.year = int(self.kwargs['y'])
         if 'd' in self.kwargs:
-            self.day  = int(self.kwargs['d'])
+            self.day = int(self.kwargs['d'])
             start_date = end_date = datetime.date(self.year, self.month, self.day)
             qs = qs.filter(start_date__lte=start_date, end_date__gte=end_date)
         else:
             start_date = datetime.date(self.year, self.month, 1)
-            end_date   = datetime.date(self.year, self.month, calendar.monthrange(self.year, self.month)[1])
+            end_date = datetime.date(
+                self.year,
+                self.month,
+                calendar.monthrange(self.year, self.month)[1]
+            )
             qs = qs.filter(start_date__gte=start_date, end_date__lte=end_date)
         return qs
 
@@ -72,8 +76,8 @@ class EventsForPeriod(EventList):
             date = datetime.date.strftime(datetime.date(self.year, self.month, 1), '%B %Y')
             cal_type = 'month'
         context.update({
-            'cal_date' : date,
-            'cal_type' : cal_type
+            'cal_date': date,
+            'cal_type': cal_type
         })
         return context
 events_for_period = EventsForPeriod.as_view()
@@ -123,7 +127,7 @@ class ExtraInfoDetail(EventUpdate):
 
 def create_ical(request, slug):
     """ Creates an ical .ics file for an event using vobject. """
-    event    = get_object_or_404(Event, slug=slug)
+    event = get_object_or_404(Event, slug=slug)
     # convert dates to datetimes.
     # when we change code to datetimes, we won't have to do this.
     start = event.start_date
@@ -153,9 +157,9 @@ def event_all_comments_list(request, slug):
     Returns a list view of all comments for a given event.
     Combines event comments and update comments in one list.
     """
-    event    = get_object_or_404(Event, slug=slug)
+    event = get_object_or_404(Event, slug=slug)
     comments = event.all_comments
-    page = int(request.GET.get('page', 99999)) # feed empty page by default to push to last page
+    page = int(request.GET.get('page', 99999))  # feed empty page by default to push to last page
     is_paginated = False
     if comments:
         paginator = Paginator(comments, 50)  # Show 50 comments per page
@@ -193,8 +197,8 @@ def event_update_list(request, slug):
         # if not, use reverse chronological
         updates = updates.order_by('-id')
     return render(request, 'happenings/updates/update_list.html', {
-      'event': event,
-      'object_list': updates,
+        'event': event,
+        'object_list': updates,
     })
 
 
@@ -209,28 +213,6 @@ def video_list(request, slug):
     })
 
 
-def giveaways_for_event(request, slug):
-    event = get_object_or_404(Event, slug=slug)
-    giveaways = Giveaway.objects.filter(event__slug=slug)
-    return render(request, 'happenings/giveaways/giveaway_list.html', {
-        'event': event,
-        'giveaways': giveaways,
-    })
-
-
-def giveaway_winners_for_event(request, slug):
-    event = get_object_or_404(Event, slug=slug)
-    winners = GiveawayResponse.objects.filter(question__event__slug=slug, correct=True).order_by('respondent__id')
-
-    template_name = 'happenings/giveaways/winners.html'
-    if 'export' in request.GET:
-        template_name = 'happenings/giveaways/winners_export.html'
-
-    return render(request, template_name, {
-        'event': event,
-        'winners': winners,
-    })
-
 @login_required
 def add_event(request):
     """ Public form to add an event. """
@@ -244,7 +226,10 @@ def add_event(request):
         instance.save()
         messages.success(request, 'Your event has been added.')
         return HttpResponseRedirect(reverse('events_index'))
-    return render(request, 'happenings/event_form.html', {'form': form, 'form_title': 'Add an event'})
+    return render(request, 'happenings/event_form.html', {
+        'form': form,
+        'form_title': 'Add an event'
+    })
 
 
 class EditEvent(UpdateView):
@@ -281,22 +266,6 @@ def add_attending(request, slug):
     return HttpResponseRedirect(reverse('event_attending_list', args=[event.slug]))
 
 
-def record_giveaway_response(request, giveaway_id):
-    giveaway = get_object_or_404(Giveaway, id=giveaway_id)
-    event = giveaway.event
-    form = GiveawayResponseForm(request.POST or None)
-    if form.is_valid():
-        new_instance = form.save(commit=False)
-        new_instance.question = giveaway
-        new_instance.respondent = request.user
-        new_instance.save()
-        messages.success(request, 'Your response has been recorded.')
-    try:
-        return HttpResponseRedirect(giveaway.update_set.all()[0].get_absolute_url())
-    except:
-        return HttpResponseRedirect(event.get_absolute_url())
-
-
 def add_memory(request, slug):
     """ Adds a memory to an event. """
     event = get_object_or_404(Event, slug=slug)
@@ -307,12 +276,9 @@ def add_memory(request, slug):
         instance.event = event
         instance.save()
         msg = "Your thoughts were added. "
-        #print('attempting to get photo_list...')
 
         if request.FILES:
-            #print('request.files: %s' % request.FILES)
             photo_list = request.FILES.getlist('photos')
-            #print('photo list: %s' % photo_list)
             photo_count = len(photo_list)
             for upload_file in photo_list:
                 process_upload(upload_file, instance, form, event, request)
@@ -357,9 +323,9 @@ def process_upload(upload_file, instance, form, event, request):
     if upload_name.endswith('.jpg') or upload_name.endswith('.jpeg'):
         try:
             upload = Image(
-                event   = event,
-                image   = upload_file,
-                caption = caption,
+                event=event,
+                image=upload_file,
+                caption=caption,
             )
             upload.save()
             instance.photos.add(upload)

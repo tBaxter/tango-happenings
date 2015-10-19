@@ -72,8 +72,6 @@ After an event is created, you will see additional fields allowing you to add ad
 	- Give your update a title/headline.
 	- Select your name in the "Author" field, if it wasn't selected already for you.
 	- Provide your update body. Again, this should be a brief highlight -- A status update. So keep it to a paragraph or two. Long updates make navigating the event much more difficult. After the event, when you have more time, you can be as verbose as you want in the event recap.
-	- You can attach a giveaway to an event. Unless you have a very good reason, don't. Attach the giveaways to the event itself. Again, it's much easier to navigate if you aren't forcing users out onto the farthest limbs of a branching tree.
-	- You can attach an MP3 audio file to an update.
 3. Updates can have one or more images.
 	- In general, one should be more than enough. Again, this should be a brief update. Additional images can (and should) be attached to the image itself.
 	- These images will be included in the event slideshow, but they cannot be ordered with the other event images, so you can have some unpredictable ordering. Again, whenever possible, just upload the image directly to the event.

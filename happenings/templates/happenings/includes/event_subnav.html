@@ -28,17 +28,6 @@
   {% endif %}
 {% endwith %}
 
-{% with event.giveaway_set.count as count %}
-  {% if count %}
-    <li>
-      <a href="{{ domain }}{% url 'giveaways' event.slug %}">
-        <span class="counter">{{ count }}</span>
-        giveaway{{ count|pluralize }}
-      </a>
-    </li>
-  {% endif %}
-{% endwith %}
-
 {% with event.get_all_images_count as i_count %}
   {% if i_count %}
     <li>

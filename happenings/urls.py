@@ -112,7 +112,7 @@ urlpatterns += patterns(
         view='happenings.views.add_attending',
     ),
     # memories
-     url(
+    url(
         name="event_memories",
         regex=r'^(?P<slug>(\w|-)+)/memories/$',
         view=EventDetail.as_view(template_name="happenings/memory_list.html"),
@@ -155,27 +155,5 @@ urlpatterns += patterns(
             queryset=Update.objects.all(),
             template_name="happenings/updates/update_slides.html",
         )
-    ),
-
-    # GIVEAWAYS
-    url(
-        name="giveaways",
-        regex=r'^(?P<slug>[-\w]+)/giveaways/$',
-        view='happenings.views.giveaways_for_event',
-    ),
-    url(
-        name="giveaway_winner",
-        regex=r'^(?P<slug>[-\w]+)/giveaways/winners/$',
-        view='happenings.views.giveaway_winners_for_event',
-    ),
-    url(
-        name="giveaway_response_processing",
-        regex=r'^giveaways/(?P<giveaway_id>\d+)/response/$',
-        view='happenings.views.record_giveaway_response',
-    ),
-    url(
-        name="giveaway_response_recorded",
-        regex=r'^giveaway/response-recorded/$',
-        view=TemplateView.as_view(template_name="happenings/response_recorded.html"),
     ),
 )

@@ -2,8 +2,7 @@ import datetime
 
 from django import template
 from django.contrib.sites.models import Site
-from happenings.models import Event, GiveawayResponse, Update
-from happenings.forms import GiveawayResponseForm
+from happenings.models import Event, Update
 
 register = template.Library()
 
@@ -19,10 +18,14 @@ def get_upcoming_events_count(days=14, featured=False):
     {% get_upcoming_events_count DAYS as events_count %}
     with days being the number of days you want, or 5 by default
     """
-    start_period  = today - datetime.timedelta(days=2)
-    end_period    = today + datetime.timedelta(days=days)
+    start_period = today - datetime.timedelta(days=2)
+    end_period = today + datetime.timedelta(days=days)
     if featured:
-        return Event.objects.filter(featured=True, start_date__gte=start_period, start_date__lte=end_period).count()
+        return Event.objects.filter(
+            featured=True,
+            start_date__gte=start_period,
+            start_date__lte=end_period
+        ).count()
     return Event.objects.filter(start_date__gte=start_period, start_date__lte=end_period).count()
 
 
@@ -60,9 +63,12 @@ def get_events_by_date_range(days_out, days_hold, max_num=5, featured=False):
     that fall within the next 14 days or have ended within the past 3.
     """
     range_start = today - datetime.timedelta(days=days_hold)
-    range_end   = today + datetime.timedelta(days=days_out)
+    range_end = today + datetime.timedelta(days=days_out)
 
-    events = Event.objects.filter(start_date__gte=range_start, start_date__lte=range_end).order_by('start_date')
+    events = Event.objects.filter(
+        start_date__gte=range_start,
+        start_date__lte=range_end
+    ).order_by('start_date')
     if featured:
         events = events.filter(featured=True)
     events = events[:max_num]
@@ -86,42 +92,25 @@ def load_past_events():
     return {'events': Event.objects.filter(start_date__lt=today, featured=True)}
 
 
-@register.inclusion_tag('happenings/giveaways/winners.html')
-def render_giveaway_winners(giveaway):
-    """
-    shows giveaway winners
-    """
-    return {
-        'winners': GiveawayResponse.objects.filter(question=giveaway, correct=True),
-        'giveaway': giveaway
-    }
-
-
-@register.inclusion_tag('happenings/giveaways/giveaway_form.html')
-def render_giveaway_form(giveaway, user):
-    """
-    shows giveaway form
-    """
-    return {
-        'form': GiveawayResponseForm(),
-        'giveaway': giveaway,
-        'user': user
-    }
-
-
 @register.inclusion_tag('includes/pagination/prev_next.html')
 def paginate_update(update):
     """
     attempts to get next and previous on updates
     """
-    time  = update.pub_time
+    time = update.pub_time
     event = update.event
     try:
-        next = Update.objects.filter(event=event, pub_time__gt=time).order_by('pub_time').only('title')[0]
+        next = Update.objects.filter(
+            event=event,
+            pub_time__gt=time
+        ).order_by('pub_time').only('title')[0]
     except:
         next = None
     try:
-        previous = Update.objects.filter(event=event, pub_time__lt=time).order_by('-pub_time').only('title')[0]
+        previous = Update.objects.filter(
+            event=event,
+            pub_time__lt=time
+        ).order_by('-pub_time').only('title')[0]
     except:
         previous = None
     return {'next': next, 'previous': previous, 'event': event}
