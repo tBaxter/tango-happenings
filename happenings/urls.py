@@ -1,5 +1,5 @@
 from django.conf.urls import patterns, url
-from django.views.generic import DetailView, TemplateView
+from django.views.generic import DetailView
 
 from .models import Update
 from .views import EventDetail, EventUpdate, MemoryDetail, ExtraInfoDetail
