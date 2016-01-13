@@ -116,7 +116,7 @@ class Event(models.Model):
         related_name="similar_events",
         limit_choices_to={'featured': True}
     )
-    attending = models.ManyToManyField(UserModel, blank=True, null=True, related_name="attendees")
+    attending = models.ManyToManyField(UserModel, blank=True, related_name="attendees")
 
     objects = EventManager()
 
@@ -372,7 +372,6 @@ class Memory(BaseUserContentModel):
     )
     photos = models.ManyToManyField(
         Image,
-        null=True,
         blank=True,
         help_text="Optional. Upload some images. Be kind, this isn't Flickr."
     )
