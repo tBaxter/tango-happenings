@@ -1,16 +1,15 @@
 import datetime
 
 from django import template
-from django.contrib.sites.models import Site
+
 from happenings.models import Event, Update
 
 register = template.Library()
 
 today = datetime.date.today()
-current_site = Site.objects.get_current()
 
 
-@register.assignment_tag
+@register.simple_tag
 def get_upcoming_events_count(days=14, featured=False):
     """
     Returns count of upcoming events for a given number of days, either featured or all
@@ -29,7 +28,7 @@ def get_upcoming_events_count(days=14, featured=False):
     return Event.objects.filter(start_date__gte=start_period, start_date__lte=end_period).count()
 
 
-@register.assignment_tag
+@register.simple_tag
 def get_upcoming_events(num, days, featured=False):
     """
     Get upcoming events.
@@ -42,7 +41,7 @@ def get_upcoming_events(num, days, featured=False):
     holding them for 14 days past their start date.
 
     """
-    start_date = datetime.date.today() - datetime.timedelta(days=days)
+    start_date = today - datetime.timedelta(days=days)
     events = Event.objects.filter(start_date__gt=start_date).order_by('start_date')
     if featured:
         events = events.filter(featured=True)
@@ -50,7 +49,7 @@ def get_upcoming_events(num, days, featured=False):
     return events
 
 
-@register.assignment_tag
+@register.simple_tag
 def get_events_by_date_range(days_out, days_hold, max_num=5, featured=False):
     """
     Get upcoming events for a given number of days (days out)
@@ -82,14 +81,16 @@ def load_event_subnav(event, user=None, use_domain=False):
         'user': user,
     }
     if use_domain:
+        from django.contrib.sites.models import Site
+        current_site = Site.objects.get_current()
         context['domain'] = 'http://{}'.format(current_site.domain)
     return context
 
 
 @register.inclusion_tag('happenings/includes/past_events.html')
 def load_past_events():
-    today = datetime.date.today() - datetime.timedelta(days=2)
-    return {'events': Event.objects.filter(start_date__lt=today, featured=True)}
+    inverval = today - datetime.timedelta(days=2)
+    return {'events': Event.objects.filter(start_date__lt=inverval, featured=True)}
 
 
 @register.inclusion_tag('includes/pagination/prev_next.html')

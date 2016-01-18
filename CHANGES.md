@@ -1,5 +1,8 @@
 # Tango-Happenings Change log
 
+## 0.12.2
+* Updated template tags for 1.9
+
 ## 0.12.1
 * Fix for contentType model name
 
