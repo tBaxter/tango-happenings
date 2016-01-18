@@ -182,8 +182,8 @@ class Event(models.Model):
         """
         Returns combined list of event and update comments.
         """
-        ctype = ContentType.objects.get(app_label__exact="happenings", name__exact='event')
-        update_ctype = ContentType.objects.get(app_label__exact="happenings", name__exact='update')
+        ctype = ContentType.objects.get(app_label__exact="happenings", model__exact='event')
+        update_ctype = ContentType.objects.get(app_label__exact="happenings", model__exact='update')
         update_ids = self.update_set.values_list('id', flat=True)
 
         return Comment.objects.filter(

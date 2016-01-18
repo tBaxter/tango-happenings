@@ -1,5 +1,8 @@
 # Tango-Happenings Change log
 
+## 0.12.1
+* Fix for contentType model name
+
 ## 0.12.0
 * Updates for Django 1.8+ compatibility and minor cleanup
 

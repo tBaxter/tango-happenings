@@ -11,7 +11,7 @@ UserModel = get_user_model()
 
 class TestHappeningsGeneralViews(TestCase):
     # authtestdata.json is pulled from django.contrib.auth for some basic users
-    fixtures = ['events.json', 'authtestdata.json']
+    fixtures = ['events.json', 'auth_users.json']
 
     def setUp(self):
         self.event = Event.objects.get(id=1)

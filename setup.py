@@ -7,7 +7,7 @@ with open('docs/requirements.txt') as f:
 
 setup(
     name='tango-happenings',
-    version='0.12.0',
+    version='0.12.1',
     author=u'Tim Baxter',
     author_email='mail.baxter@gmail.com',
     url='https://github.com/tBaxter/django-happenings',
