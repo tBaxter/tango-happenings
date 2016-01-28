@@ -2,7 +2,7 @@ from __future__ import print_function
 
 import calendar
 import datetime
-import vobject
+import card_me
 
 from django import forms
 from django.conf import settings
@@ -126,7 +126,7 @@ class ExtraInfoDetail(EventUpdate):
 
 
 def create_ical(request, slug):
-    """ Creates an ical .ics file for an event using vobject. """
+    """ Creates an ical .ics file for an event using python-card-me. """
     event = get_object_or_404(Event, slug=slug)
     # convert dates to datetimes.
     # when we change code to datetimes, we won't have to do this.
@@ -139,7 +139,7 @@ def create_ical(request, slug):
     else:
         end = start
 
-    cal = vobject.iCalendar()
+    cal = card_me.iCalendar()
     cal.add('method').value = 'PUBLISH'
     vevent = cal.add('vevent')
     vevent.add('dtstart').value = start
