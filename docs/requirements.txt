@@ -1,4 +1,4 @@
-vobject>=0.8.2
+#vobject>=0.8.2
 
 tango-shared-core>=0.6
 tango-comments>=0.1
