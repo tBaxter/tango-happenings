@@ -6,6 +6,7 @@ INSTALLED_APPS = (
     'django.contrib.humanize',
     'django.contrib.sites',
 
+    'easy_thumbnails',
     'tango_shared',
     'happenings',
     'typogrify' # installed by shared, keeps templates happy

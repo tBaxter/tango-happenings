@@ -1,8 +1,12 @@
+import datetime
 import unittest
 
+import django
 from django.contrib.auth import get_user_model
 from django.core.urlresolvers import reverse
-from django.test import TestCase
+from django.test import RequestFactory, TestCase
+from django.utils import timezone
+from django.views.generic import TemplateView
 
 from .models import Event
 
@@ -14,6 +18,9 @@ class TestHappeningsGeneralViews(TestCase):
 
     def setUp(self):
         self.event = Event.objects.get(id=1)
+        self.event.start_date = timezone.now()
+        self.event.end_date = timezone.now() + datetime.timedelta(days=1)
+        self.event.save()
         self.user = UserModel.objects.all()[0]
 
     def test_index(self):
@@ -89,3 +96,13 @@ class TestHappeningsGeneralViews(TestCase):
         response_list = response.content.decode("utf-8").split('\r\n')
         self.assertEquals(response_list[0], 'BEGIN:VCALENDAR')
         #self.assertEquals(response_list[11], 'SUMMARY:Test Event')
+
+    @unittest.skipIf(django.VERSION < (1, 9, 0), "Test is only for Django >= 1.9.0")
+    def test_get_events_by_date(self):
+
+        class TestView(TemplateView):
+            template_name = 'happenings/test/get_events_by_date.html'
+
+        factory = RequestFactory()
+        response = TestView.as_view()(factory.get('/'))
+        self.assertEqual(response.status_code, 200)
