@@ -5,6 +5,7 @@ from .models import Image, BulkEventImageUpload, UpdateImage
 from .models import Event, Update, Memory, ExtraInfo, Schedule
 from .forms import AdminAddEventForm
 
+supports_video = False
 
 if 'video' in settings.INSTALLED_APPS:
     from .models import EventVideo

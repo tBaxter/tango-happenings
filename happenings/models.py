@@ -29,6 +29,8 @@ offset = now - datetime.timedelta(days=5)
 
 UserModel = getattr(settings, "AUTH_USER_MODEL", "auth.User")
 
+supports_video = False
+
 if 'video' in settings.INSTALLED_APPS:
     supports_video = True
 
