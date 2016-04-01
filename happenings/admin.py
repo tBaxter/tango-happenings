@@ -1,8 +1,14 @@
+from django.conf import settings
 from django.contrib import admin
 
-from .models import Image, BulkEventImageUpload, UpdateImage, EventVideo
+from .models import Image, BulkEventImageUpload, UpdateImage
 from .models import Event, Update, Memory, ExtraInfo, Schedule
 from .forms import AdminAddEventForm
+
+
+if 'video' in settings.INSTALLED_APPS:
+    from .models import EventVideo
+    supports_video = True
 
 
 class ExtraInfoAdmin(admin.ModelAdmin):
@@ -29,10 +35,10 @@ class UpdateImageInline(admin.TabularInline):
     max_num = 3
     extra = 1
 
-
-class VideoInline(admin.TabularInline):
-    model = EventVideo
-    extra = 1
+if supports_video:
+    class VideoInline(admin.TabularInline):
+        model = EventVideo
+        extra = 1
 
 
 class ScheduleInline(admin.TabularInline):
@@ -50,10 +56,11 @@ class EventAdmin(admin.ModelAdmin):
     inlines = [
         ImageInline,
         EventBulkInline,
-        VideoInline,
         ExtraInfoInline,
         ScheduleInline,
     ]
+    if supports_video:
+        inlines.append(VideoInline)
 
     def formfield_for_foreignkey(self, db_field, request, **kwargs):
         if db_field.name == 'submitted_by':

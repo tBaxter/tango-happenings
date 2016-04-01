@@ -1,5 +1,17 @@
 # Tango-Happenings Change log
 
+## 0.13.1
+* Better handling of missing video module
+
+## 0.13.0
+* Improved testing and switched from vobject to python-card-me
+
+## 0.12.4
+* Attempting to import in tags to avoid loading problem.
+
+## 0.12.3
+* Reverted 12.2
+
 ## 0.12.2
 * Updated template tags for 1.9
 

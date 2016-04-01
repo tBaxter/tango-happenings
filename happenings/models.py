@@ -29,6 +29,8 @@ offset = now - datetime.timedelta(days=5)
 
 UserModel = getattr(settings, "AUTH_USER_MODEL", "auth.User")
 
+if 'video' in settings.INSTALLED_APPS:
+    supports_video = True
 
 REGION_CHOICES = (
     ('Canada', 'Canada'),
@@ -238,7 +240,7 @@ class Event(models.Model):
         """
         images = self.get_all_images()[0:14]
         video = []
-        if 'video' in settings.INSTALLED_APPS:
+        if supports_video:
             video = self.eventvideo_set.all()[0:10]
 
         return list(chain(images, video))[0:15]
@@ -458,7 +460,7 @@ class BulkEventImageUpload(models.Model):
         return  # note that we're not actually saving the zip. No good reason to.
 
 
-if 'video' in settings.INSTALLED_APPS:
+if supports_video:
 
     class EventVideo(models.Model):
         video = models.ForeignKey('video.Video', related_name="event_video")

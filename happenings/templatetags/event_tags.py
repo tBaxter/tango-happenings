@@ -2,14 +2,14 @@ import datetime
 
 from django import template
 
-from happenings.models import Event, Update
-
 register = template.Library()
+
+#from happenings.models import Event, Update
 
 today = datetime.date.today()
 
 
-@register.simple_tag
+@register.assignment_tag
 def get_upcoming_events_count(days=14, featured=False):
     """
     Returns count of upcoming events for a given number of days, either featured or all
@@ -17,6 +17,7 @@ def get_upcoming_events_count(days=14, featured=False):
     {% get_upcoming_events_count DAYS as events_count %}
     with days being the number of days you want, or 5 by default
     """
+    from happenings.models import Event
     start_period = today - datetime.timedelta(days=2)
     end_period = today + datetime.timedelta(days=days)
     if featured:
@@ -28,7 +29,7 @@ def get_upcoming_events_count(days=14, featured=False):
     return Event.objects.filter(start_date__gte=start_period, start_date__lte=end_period).count()
 
 
-@register.simple_tag
+@register.assignment_tag
 def get_upcoming_events(num, days, featured=False):
     """
     Get upcoming events.
@@ -41,6 +42,7 @@ def get_upcoming_events(num, days, featured=False):
     holding them for 14 days past their start date.
 
     """
+    from happenings.models import Event
     start_date = today - datetime.timedelta(days=days)
     events = Event.objects.filter(start_date__gt=start_date).order_by('start_date')
     if featured:
@@ -49,7 +51,7 @@ def get_upcoming_events(num, days, featured=False):
     return events
 
 
-@register.simple_tag
+@register.assignment_tag
 def get_events_by_date_range(days_out, days_hold, max_num=5, featured=False):
     """
     Get upcoming events for a given number of days (days out)
@@ -61,6 +63,7 @@ def get_events_by_date_range(days_out, days_hold, max_num=5, featured=False):
     Would return no more than 3 featured events,
     that fall within the next 14 days or have ended within the past 3.
     """
+    from happenings.models import Event
     range_start = today - datetime.timedelta(days=days_hold)
     range_end = today + datetime.timedelta(days=days_out)
 
@@ -89,6 +92,7 @@ def load_event_subnav(event, user=None, use_domain=False):
 
 @register.inclusion_tag('happenings/includes/past_events.html')
 def load_past_events():
+    from happenings.models import Event
     inverval = today - datetime.timedelta(days=2)
     return {'events': Event.objects.filter(start_date__lt=inverval, featured=True)}
 
@@ -98,6 +102,7 @@ def paginate_update(update):
     """
     attempts to get next and previous on updates
     """
+    from happenings.models import Update
     time = update.pub_time
     event = update.event
     try:
