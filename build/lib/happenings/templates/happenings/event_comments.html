@@ -1,0 +1,23 @@
+{% extends "happenings/event_detail.html" %}
+
+{% block extra_title %}{{ block.super }}{{ event.name }} comments{% endblock %}
+
+{% block bodyid %}comments_detail{% endblock %}
+
+{% block content %}
+  <h2 class="kicker">
+    <a href="{{ event.get_absolute_url }}">{{ event.name }}</a>: 
+  </h2>
+  <h1>Discussion</h1>
+
+  {% include 'includes/generic_pagination.html' %}
+
+  {% with object_list.count as c_count %}
+      {% with event as object %}
+        {% include 'comments/inclusion/for_object.html' %}
+      {% endwith %}
+  {% endwith %}
+
+  {% include 'includes/generic_pagination.html' %}
+
+{% endblock %}

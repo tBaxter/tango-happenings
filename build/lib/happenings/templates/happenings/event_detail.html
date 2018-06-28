@@ -1,0 +1,170 @@
+{% extends "happenings/base.html" %}
+
+{% load typogrify_tags social_tags event_tags humanize comments thumbnail %}
+
+{% block extra_title %}Events: {{ object.name }}{% endblock %}
+
+{% block bodyclass %}detail{% endblock %}
+
+{% block content %}
+  <article class="vcalendar">
+    <section class="entry-content">
+      {% include "includes/top_assets.html" %}
+
+      {% if object.recap %}
+        <h1>{{ object.name }}</h1>
+        {{ object.recap_formatted|typogrify }}
+      {% else %}
+        {% include "happenings/includes/event_info.html" %}
+      {% endif %}
+
+      {% if not event.ended %}
+        {% if user.is_authenticated %}
+          <h2 class="button add right clearfix">
+            <a href="{% url 'attending_add' event.slug %}">I'm going, sign me up!</a>
+          </h2>
+        {% endif %}
+      {% endif %}
+
+      {% social_links object user authenticated_request %}
+
+    </section>
+
+    <hr class="fancy">
+
+    {% include "happenings/includes/latest_updates.html" %}
+
+    {% if object.has_started %}
+      {% with object.memory_set.count as memory_count %}
+
+        {% if user in object.attending.all %}
+          <a href="{% url 'add_memory' object.slug %}" class="icon-add right button">
+            Since you attended, you can add your thoughts and photos:
+          </a>
+        {% endif %}
+
+        <h2 class="kicker">
+          <a href="{% url 'event_memories' object.slug %}">Attendees said...</a>
+        </h2>
+
+        {% if memory_count == 0 %}
+          <p>No attendees have shared their memories yet.</p>
+        {% else %}
+          <div class="columned two-col grid">
+            {% for m in object.memory_set.all|dictsortreversed:'id'|slice:"6" %}
+              <a href="{{ m.get_absolute_url }}">
+                {% with m.photos.all.0 as pic %}
+                  {% if pic %}
+                    <img src="{{ pic.image.t_80.url }}" class="avatar left">
+                  {% endif %}
+                  {% if m.text %}
+                    <p>{{ m.text|truncatewords:"30" }}<br>
+                      <cite class="right">&ndash; {{ m.user.display_name }}</cite>
+                    </p>
+                  {% else %}
+                    <small>{{ m.user.display_name }} shared some photos</small>
+                  {% endif %}
+                {% endwith %}
+              </a>
+            {% endfor %}
+          </div>
+          <a href="{% url 'event_memories' object.slug %}">
+            View all {{ memory_count }} memories
+          </a>
+        {% endif %}
+      {% endwith %}
+      <hr class="fancy">
+    {% endif %}
+
+    {# this would be a good place to insert the comments of your choice #}
+    {% block comments %}
+      {% include "happenings/includes/latest_comments.html" %}
+      <hr class="clear">
+      {% if authenticated_request %}
+        {% render_comment_form for object %}
+      {% else %}
+        {% include "includes/signin_reg.html" %}
+      {% endif %}
+
+      <hr class="fancy">
+
+    {% endblock %}
+  </article>
+
+  <hr class="clear">
+{% endblock %}
+
+{% block complementary %}
+  <ul class="fancy">
+    {% load_event_subnav event user %}
+  </ul>
+
+  {% if event.ended %}
+    {% if user.is_staff or user.id == event.submitted_by.id %}
+      <p>
+        <a href="{{ event.get_absolute_url }}add-recap/" class="{% if event.recap %}button icon-edit{% else %}icon-add{% endif %}">
+          Add or edit an event recap</a>
+      </p>
+    {% endif %}
+  {% else %}
+    {% if user.is_staff or user.id == event.submitted_by.id %}
+      <p>
+        <a href="{{ event.get_absolute_url }}edit-event/" class="button icon-edit">
+          Edit event info
+        </a>
+      </p>
+    {% endif %}
+  {% endif %}
+
+  {% if user in event.attending.all %}
+    <p>
+      <a href="{{ event.get_absolute_url }}memories/add/" title="Share your memories" class="icon-add">
+        Add your memories
+      </a>
+    </p>
+  {% endif %}
+
+  {% if event.schedule.count %}
+    <h2>Schedule</h2>
+    <ul id="event_schedule">
+      {% for ev in event.schedule.all|dictsort:"start" %}
+        <li>
+          {% ifchanged ev.start.day %}<h4>{{ ev.start|date:"N j"}}</h4>{% endifchanged %}
+          {% if ev.show_time %}
+            <strong>
+              {{ ev.start.time }}{% if ev.end %} - {{ ev.end.time }}{% endif %}:
+            </strong>
+          {% endif %}
+          {{ ev.event }}
+          <span class="meta">{{ ev.description }}</span>
+        </li>
+      {% endfor %}
+    </ul>
+  {% endif %}
+
+  {% with event.related_events.all as related_events %}
+    {% if related_events %}
+      <h2>Related</h2>
+      <ul class="fancy">
+        {% for rel in related_events %}
+          <li><a href="{{ rel.get_absolute_url }}">{{ rel.name }}</a></li>
+        {% endfor %}
+      </ul>
+    {% endif %}
+  {% endwith %}
+
+  {% with event.get_sidebars as sidebars %}
+    {% if sidebars %}
+      {% for side in sidebars %}
+        <div>
+          <h3>{{ side.title }}</h3>
+          {% if side.image %}
+            <img src="{{ side.image|thumbnail_url:'t_360' }}" alt="">
+          {% endif %}
+          {{ side.text_formatted|typogrify }}
+        </div>
+      {% endfor %}
+    {% endif %}
+  {% endwith %}
+
+{% endblock %}

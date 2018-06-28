@@ -1,0 +1,11 @@
+{% load event_tags %}
+
+{% block content %}
+    {#  return 3 featured events within next 200 days or within past 100. #}
+    {% get_events_by_date_range 200 100 3 'featured' as events %}
+
+      {% for event in events %}
+        -- {{ event }}
+      {% endfor %}
+
+{% endblock %}

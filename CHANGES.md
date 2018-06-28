@@ -1,5 +1,8 @@
 # Tango-Happenings Change log
 
+## 0.13.2
+* Updated for better Django 2.0 compatibility
+
 ## 0.13.1
 * Better handling of missing video module
 

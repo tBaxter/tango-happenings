@@ -1,0 +1,34 @@
+{% extends "happenings/event_detail.html" %}
+
+{% load typogrify_tags %}
+
+{% block title %} {{ object.name }} Memories: {% endblock %}
+
+{% block content %}
+  <article>
+    <h1>
+      {{ object.name}} Memories
+      {% if user in object.attending.all  %}
+        <a href="{% url 'add_memory' object.slug %}" class="meta add">Share yours</a>
+      {% endif %}
+    </h1>
+    <div class="columned two-col">
+      {% for m in object.memory_set.all|dictsortreversed:'id' %}
+        <a href="{{ m.get_absolute_url }}">
+          {% with m.photos.all.0 as pic %}
+            {% if pic %}
+              <img src="{{ pic.image.t_80.url }}" class="avatar left">
+            {% endif %}
+            <h2 class="kicker">{{ m.user.display_name }}</h2>
+            {% if m.text %}
+              <p>{{ m.text|truncatewords:"50" }}
+              </p>
+            {% else %}
+              <small>shared some photos</small>
+            {% endif %}
+          {% endwith %}
+        </a>
+      {% endfor %}
+    </div>
+  </article>
+{% endblock %}

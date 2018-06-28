@@ -1,0 +1,24 @@
+{% extends "happenings/event_detail.html" %}
+
+{% load typogrify_tags social_tags event_tags humanize %}
+
+{% block extra_title %}Events: {{ event.name }} Memories: {{ object.author.display_name }}
+{% endblock %}
+
+{% block bodyclass %}detail{% endblock %}
+
+{% block content %}
+  <article>
+    <section class="entry-content">
+      {% include "includes/top_assets.html" %}
+      <h2 class="kicker">
+        <a href="{{ event.get_absolute_url }}">
+          {{ event.name }}
+        </a>
+      </h2>
+      <h1>{{ object.author.display_name }}</h1>
+      {{ object.text_formatted|typogrify }}
+    </section>
+  </article>
+  <hr class="clear">
+{% endblock %}

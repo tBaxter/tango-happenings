@@ -1,0 +1,72 @@
+{% load typogrify_tags tango_time_tags voting_tags %}
+
+{% with object.get_latest_comments as latest_comments %}
+  {% if latest_comments.count %}
+    <h2 class="kicker">Latest Comment{{ latest_comments.count|pluralize }}</h2>
+    <div{% if latest_comments.count != 1 %} class="columned phi"{% endif %}>
+
+      {% with latest_comments|slice:"2" as top_comments %}
+        <div>
+          {% for comment in top_comments %}
+            <article class="{{ comment.votes|set_flag:"-2" }}" id="c{{ comment.id }}">
+              <header {% if comment.post_date > last_seen %} class="newposts"{% endif %}>
+                {% with comment.user as profile %}
+                  <figure class="avatar left" data-deferred-load="{{ MEDIA_URL }}{% firstof profile.avatar 'img/avatars/default.jpg' %}"></figure>
+                  <h1>{{ profile.display_name }}</h1>
+                {% endwith %}
+
+                {# handle comments not on the current object but in the list #}
+                {% if comment.content_object.pk != object.pk %}
+                  {% with comment.content_object as content_obj %}
+                    <h2 class="subhead kicker">
+                      <a href="{{ content_obj.get_absolute_url }}" class="meta">
+                        On {% firstof content_obj.title content_obj.name content_obj %}
+                      </a>
+                    </h2>
+                  {% endwith %}
+                {% endif %}
+                <time datetime="{{ comment.post_date|date:"Y-m-d\TH:i:00" }}" title="{{ comment.post_date|date:"N j, Y g:i a" }}" >
+                  <!--googleoff: all-->
+                    {{ comment.post_date|short_timesince }} ago
+                  <!--googleon: all-->
+                </time>
+              </header>
+              <div class="post clearfix">
+                {{ comment.text_formatted|typogrify }}
+              </div>
+            </article>
+          {% endfor %} {# end top_comment loop #}
+        </div>
+      {% endwith %}
+
+      {# remaining #}
+      {% if latest_comments.count > 2 %}
+        <div>
+          <ul class="fancy">
+            {% for c in latest_comments|slice:"2:" %}
+              <li>
+                {% with c.user as profile %}
+                  <span class="meta kicker">{{ profile.display_name }}
+
+                    {# handle comments not on the current object but in the list #}
+                    {% if c.content_object.pk != object.pk %}
+                      {% with c.content_object as content_obj %}
+                        <a href="{{ content_obj.get_absolute_url }}" class="meta">
+                          On {% firstof content_obj.title content_obj.name content_obj %}
+                        </a>
+                      {% endwith %}
+                    {% endif %}
+                  </span>
+                  <q class="post clearfix">{{ c.text|truncatewords:"30" }}</q>
+                {% endwith %}
+              </li>
+            {% endfor %}
+          </ul>
+          <a href="{% url 'event_comments' object.slug %}" class="button">
+            All comments
+          </a>
+        </div>
+      {% endif %}{# end remaining #}
+    </div>{# closes columned #}
+  {% endif %}
+{% endwith %}
