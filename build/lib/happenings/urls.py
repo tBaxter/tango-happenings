@@ -1,159 +1,74 @@
-from django.conf.urls import patterns, url
+from django.urls import path, re_path
 from django.views.generic import DetailView
 
 from .models import Update
-from .views import EventDetail, EventUpdate, MemoryDetail, ExtraInfoDetail
+from .views import add_event, edit_event, add_recap, create_ical, \
+    EventList, EventDetail, EventsForPeriod, \
+    EventUpdate, MemoryDetail, ExtraInfoDetail, event_update_list, \
+    video_list, event_all_comments_list, add_attending, add_memory
 
 
 # CRUD and admin functions
-urlpatterns = patterns(
-    'happenings.views',
-    url(
-        regex=r'^add/$',
-        view='add_event',
-        name="add_event"
-    ),
-    url(
-        regex=r'^(?P<slug>[-\w]+)/edit-event/$',
-        view='edit_event',
-        name="edit-event"
-    ),
-    url(
-        regex=r'^(?P<slug>[-\w]+)/add-recap/$',
-        view='add_recap',
-        name="add_recap"
-    ),
+urlpatterns = [
+    # FORMS
+    path('add/', add_event, name="add_event"),
+    path('<slug:slug>/edit-event/', edit_event, name="edit-event"),
+    path('<slug:slug>/add-recap/', add_recap, name="add_recap"),
 
     # EVENT LISTS
-    url(
-        name="events_index",
-        regex=r'^$',
-        view='event_list'
+    path('', EventList, name="events_index"),
+    path('by-region/<slug:region>/', EventList, name="events_by_region"),
+    path('by-state/<slug:state>/', EventList, name="events_by_state"),
+    re_path(
+        r'^(?P<m>\d{2})/(?P<d>\d{2})/(?P<y>\d{4})/$', 
+        EventsForPeriod,
+        name="events_for_day"
     ),
-    url(
-        name="events_by_region",
-        regex=r'^by-region/(?P<region>[-\w]+)/$',
-        view='event_list'
-    ),
-    url(
-        name="events_by_state",
-        regex=r'^by-state/(?P<state>[-\w]+)/$',
-        view='event_list'
-    ),
-    url(
-        name="events_for_day",
-        regex=r'^(?P<m>\d{2})/(?P<d>\d{2})/(?P<y>\d{4})/$',
-        view='events_for_period'
-    ),
-    url(
-        name="events_for_month",
-        regex=r'^(?P<m>\d{2})/(?P<y>\d{4})/$',
-        view='events_for_period',
+    re_path(
+        r'^(?P<m>\d{2})/(?P<y>\d{4})/$',
+        EventsForPeriod, 
+        name="events_for_month"
     ),
 
     # ************* EVENT DETAILS *************/
-    url(
-        name="event_detail",
-        regex=r'^(?P<slug>[-\w]+)/$',
-        view='event_detail',
-    ),
-
-    # add to calendar
-    url(
-        name="event_ical",
-        regex=r'^(?P<slug>[-\w]+)/ical/$',
-        view='create_ical',
-    ),
+    path('<slug:slug>/', EventDetail, name="event_detail"),
+    path('<slug:slug>/ical/', create_ical, name="event_ical"),
 
     # **************** Event children ************/
-    # slideshow
-    url(
-        name="event_slides",
-        regex=r'^(?P<slug>[-\w]+)/slides/$',
-        view=EventDetail.as_view(template_name="happenings/event_slides.html"),
+    path('<slug:slug>/slides/', EventDetail, 
+        {'template_name': 'happenings/event_slides.html'},
+        name="event_slides"
     ),
-    # videos
-    url(
-        name="event_video_list",
-        regex=r'^(?P<slug>[-\w]+)/videos/$',
-        view='video_list',
+    path('<slug:slug>/videos/', video_list, name="event_video_list"),
+    path('<slug:slug>/all-comments/', event_all_comments_list, name="event_comments"),
+    path('<slug:slug>/map/', EventDetail, 
+        {'template_name': 'happenings/event_map.html'},
+        name="event_map"
     ),
-    url(
-        name="event_comments",
-        regex=r'^(?P<slug>(\w|-)+)/all-comments/$',
-        view='event_all_comments_list',
+    path('<slug:slug>/attending/', EventDetail, 
+        {'template_name': 'happenings/attending/list.html'},
+        name='event_attending_list'
     ),
-)
-
-# Special cases and event children
-urlpatterns += patterns(
-    '',
-    # slideshow
-    url(
-        name="event_slides",
-        regex=r'^(?P<slug>[-\w]+)/slides/$',
-        view=EventDetail.as_view(template_name="happenings/event_slides.html"),
+    path('<slug:slug>/attending/add/', add_attending, name="attending_add"),
+    path('<slug:slug>/memories/', EventDetail, 
+        {'template_name': 'happenings/memory_list.html'},
+        name="event_memories"
     ),
-    # map
-    url(
-        name="event_map",
-        regex=r'^(?P<slug>[-\w]+)/map/$',
-        view=EventDetail.as_view(template_name="happenings/event_map.html"),
-    ),
-    # attending
-    url(
-        name='event_attending_list',
-        regex=r'^(?P<slug>[-\w]+)/attending/$',
-        view=EventDetail.as_view(template_name="happenings/attending/list.html"),
-    ),
-    url(
-        name="attending_add",
-        regex=r'^(?P<slug>[-\w]+)/attending/add/$',
-        view='happenings.views.add_attending',
-    ),
-    # memories
-    url(
-        name="event_memories",
-        regex=r'^(?P<slug>(\w|-)+)/memories/$',
-        view=EventDetail.as_view(template_name="happenings/memory_list.html"),
-    ),
-    url(
-        name="memory_detail",
-        regex=r'^(?P<event_slug>(\w|-)+)/memories/(?P<pk>\d+)/',
-        view=MemoryDetail.as_view(),
-    ),
-    url(
-        name="add_memory",
-        regex=r'^(?P<slug>[-\w]+)/memories/add/$',
-        view='happenings.views.add_memory',
-    ),
+    path('<slug:event_slug>/memories/<int:pk>/', MemoryDetail, name="memory_detail"),
+    path('<slug:slug>/memories/add/', add_memory, name="add_memory"),
 
     # extra info pages
-    url(
-        name="special_event_extra",
-        regex=r'^(?P<event_slug>(\w|-)+)/extra/(?P<slug>(\w|-)+)/',
-        view=ExtraInfoDetail.as_view(),
-    ),
+    path('<slug:event_slug>/extra/<slug:slug>/', ExtraInfoDetail, name="special_event_extra"),
 
-    # update list
-    url(
-        name="event_update_list",
-        regex=r'^(?P<slug>[-\w]+)/updates/$',
-        view='happenings.views.event_update_list',
-    ),
-
-    # update detail
-    url(
-        name="event_update_detail",
-        regex=r'^(?P<event_slug>(\w|-)+)/updates/(?P<pk>\d+)/$',
-        view=EventUpdate.as_view(),
-    ),
-    url(
-        regex=r'^(?P<event_slug>(\w|-)+)/updates/(?P<pk>\d+)/slides/$',
+    # updates
+    path('<slug:slug>/updates/', event_update_list, name="event_update_list"),
+    path('<slug:event_slug>/updates/<int:pk>/', EventUpdate, name="event_update_detail"),
+    path('<slug:event_slug>/updates/<int:pk>/slides/',
+        DetailView,
+        {
+            'template_name': "happenings/updates/update_slides.html",
+            'queryset': Update.objects.all()
+        },
         name="update_slides",
-        view=DetailView.as_view(
-            queryset=Update.objects.all(),
-            template_name="happenings/updates/update_slides.html",
-        )
     ),
-)
+]

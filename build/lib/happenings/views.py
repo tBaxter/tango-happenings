@@ -43,7 +43,6 @@ class EventList(ListView):
         context = super(EventList, self).get_context_data(**kwargs)
         context['region'] = self.region
         return context
-event_list = EventList.as_view()
 
 
 class EventsForPeriod(EventList):
@@ -80,7 +79,6 @@ class EventsForPeriod(EventList):
             'cal_type': cal_type
         })
         return context
-events_for_period = EventsForPeriod.as_view()
 
 
 class EventDetail(DetailView):
@@ -90,7 +88,6 @@ class EventDetail(DetailView):
         context = super(EventDetail, self).get_context_data(**kwargs)
         context['key'] = key
         return context
-event_detail = EventDetail.as_view()
 
 
 class EventUpdate(DetailView):

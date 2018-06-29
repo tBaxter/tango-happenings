@@ -9,7 +9,7 @@ register = template.Library()
 today = datetime.date.today()
 
 
-@register.assignment_tag
+@register.simple_tag
 def get_upcoming_events_count(days=14, featured=False):
     """
     Returns count of upcoming events for a given number of days, either featured or all
