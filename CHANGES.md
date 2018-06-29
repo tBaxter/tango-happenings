@@ -1,7 +1,7 @@
 # Tango-Happenings Change log
 
-## 0.14.1
-Removed deprecated assignment_tag
+## 0.14.1, 0.14.2
+Removed deprecated assignment_tags
 
 ## 0.14.0
 * Updated for Django 2.0 compatibility
