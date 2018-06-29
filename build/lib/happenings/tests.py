@@ -3,8 +3,8 @@ import unittest
 
 import django
 from django.contrib.auth import get_user_model
-from django.core.urlresolvers import reverse
 from django.test import RequestFactory, TestCase
+from django.urls import reverse
 from django.utils import timezone
 from django.views.generic import TemplateView
 
