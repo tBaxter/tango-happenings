@@ -500,5 +500,5 @@ if supports_video:
             on_delete=models.CASCADE
         )
 
-
-signals.post_save.connect(update_time, sender=Comment)
+if supports_comments:
+    signals.post_save.connect(update_time, sender=Comment)
