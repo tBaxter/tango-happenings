@@ -1,5 +1,12 @@
 # Tango-Happenings Change log
 
+## 0.15.0
+* Django 2.0 & Python 3.x compatible
+* Fixed templates for tests
+* Fixed URLs not calling views correctly
+* Loosened comments dependency
+* Removed permalink references
+
 ## 0.14.1, 0.14.2
 Removed deprecated assignment_tags
 
