@@ -4,8 +4,6 @@ from django import template
 
 register = template.Library()
 
-#from happenings.models import Event, Update
-
 today = datetime.date.today()
 
 
@@ -29,7 +27,7 @@ def get_upcoming_events_count(days=14, featured=False):
     return Event.objects.filter(start_date__gte=start_period, start_date__lte=end_period).count()
 
 
-@register.assignment_tag
+@register.simple_tag
 def get_upcoming_events(num, days, featured=False):
     """
     Get upcoming events.
@@ -51,7 +49,7 @@ def get_upcoming_events(num, days, featured=False):
     return events
 
 
-@register.assignment_tag
+@register.simple_tag
 def get_events_by_date_range(days_out, days_hold, max_num=5, featured=False):
     """
     Get upcoming events for a given number of days (days out)

@@ -128,16 +128,14 @@ class Event(models.Model):
     class Meta:
         ordering = ['-start_date', '-featured']
 
-    def __unicode__(self):
+    def __str__(self):
         return self.name
 
-    @models.permalink
     def get_absolute_url(self):
-        return ('event_detail', [self.slug])
+        return ('event_detail', args=[self.slug])
 
-    @models.permalink
     def get_gallery_url(self):
-        return ('event_slides', [self.slug])
+        return ('event_slides', args=[self.slug])
 
     def save(self, *args, **kwargs):
         if not self.geocode:
@@ -347,9 +345,8 @@ class Update(models.Model):
     def __str__(self):
         return self.title
 
-    @models.permalink
     def get_absolute_url(self):
-        return ('event_update_detail', [str(self.event.slug), str(self.id)])
+        return ('event_update_detail', args=[str(self.event.slug), str(self.id)])
 
     def save(self, *args, **kwargs):
         self.update_formatted = sanetize_text(self.update)
@@ -369,9 +366,8 @@ class Update(models.Model):
     def get_image(self):
         return self.updateimage_set.latest('id')
 
-    @models.permalink
     def get_gallery_url(self):
-        return ('update_slides', [self.event.slug, str(self.id)])
+        return ('update_slides', args=[self.event.slug, str(self.id)])
 
     def get_top_assets(self):
         return self.updateimage_set.all()
@@ -414,9 +410,8 @@ class Memory(BaseUserContentModel):
     def __str__(self):
         return str(self.user)
 
-    @models.permalink
     def get_absolute_url(self):
-        return ('memory_detail', [self.event.slug, self.id])
+        return ('memory_detail', args=[self.event.slug, self.id])
 
     def save(self, *args, **kwargs):
         self.text_formatted = sanetize_text(self.text)
