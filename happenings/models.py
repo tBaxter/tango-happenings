@@ -1,8 +1,8 @@
-import BytesIO
 import datetime
 import os
 import zipfile
 
+from io import BytesIO
 from itertools import chain
 from PIL import Image as PIL_Image
 
