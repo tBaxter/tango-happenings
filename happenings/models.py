@@ -1,28 +1,32 @@
+import BytesIO
 import datetime
 import os
 import zipfile
-
-try:
-    from cStringIO import StringIO as BytesIO
-except ImportError:
-    from six import BytesIO
 
 from itertools import chain
 from PIL import Image as PIL_Image
 
 from django.conf import settings
-from tango_comments.models import Comment
 from django.contrib.contenttypes.models import ContentType
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.db import models
 from django.db.models import signals, Q
+from django.urls import reverse
 from django.utils.functional import cached_property
+
+#from tango_comments.models import Comment
 
 from tango_shared.models import ContentImage, BaseUserContentModel, BaseSidebarContentModel
 from tango_shared.utils.maptools import get_geocode
 from tango_shared.utils.sanetize import sanetize_text
 
 from .signals import update_time
+
+supports_comments = False
+if 'comments' in settings.INSTALLED_APPS:
+    from tango_comments.models import Comment
+    supports_comments = True
+
 
 now = datetime.datetime.now()
 offset = now - datetime.timedelta(days=5)
@@ -132,10 +136,10 @@ class Event(models.Model):
         return self.name
 
     def get_absolute_url(self):
-        return ('event_detail', args=[self.slug])
+        return reverse('event_detail', args=[self.slug])
 
     def get_gallery_url(self):
-        return ('event_slides', args=[self.slug])
+        return reverse('event_slides', args=[self.slug])
 
     def save(self, *args, **kwargs):
         if not self.geocode:
@@ -180,28 +184,29 @@ class Event(models.Model):
         """
         return True
 
-    @cached_property
-    def all_comments(self):
-        """
-        Returns combined list of event and update comments.
-        """
-        ctype = ContentType.objects.get(app_label__exact="happenings", model__exact='event')
-        update_ctype = ContentType.objects.get(app_label__exact="happenings", model__exact='update')
-        update_ids = self.update_set.values_list('id', flat=True)
+    if supports_comments:
+        @cached_property
+        def all_comments(self):
+            """
+            Returns combined list of event and update comments.
+            """
+            ctype = ContentType.objects.get(app_label__exact="happenings", model__exact='event')
+            update_ctype = ContentType.objects.get(app_label__exact="happenings", model__exact='update')
+            update_ids = self.update_set.values_list('id', flat=True)
 
-        return Comment.objects.filter(
-            Q(content_type=ctype.id, object_pk=self.id) |
-            Q(content_type=update_ctype.id, object_pk__in=update_ids)
-        )
+            return Comment.objects.filter(
+                Q(content_type=ctype.id, object_pk=self.id) |
+                Q(content_type=update_ctype.id, object_pk__in=update_ids)
+            )
 
-    def get_latest_comments(self):
-        """
-        Returns latest 5 comments.
-        """
-        return self.all_comments.order_by('-id')[0:5]
+        def get_latest_comments(self):
+            """
+            Returns latest 5 comments.
+            """
+            return self.all_comments.order_by('-id')[0:5]
 
-    def get_all_comments_count(self):
-        return self.all_comments.count()
+        def get_all_comments_count(self):
+            return self.all_comments.count()
 
     def get_image(self):
         """
@@ -346,7 +351,7 @@ class Update(models.Model):
         return self.title
 
     def get_absolute_url(self):
-        return ('event_update_detail', args=[str(self.event.slug), str(self.id)])
+        return reverse('event_update_detail', args=[str(self.event.slug), str(self.id)])
 
     def save(self, *args, **kwargs):
         self.update_formatted = sanetize_text(self.update)
@@ -367,7 +372,7 @@ class Update(models.Model):
         return self.updateimage_set.latest('id')
 
     def get_gallery_url(self):
-        return ('update_slides', args=[self.event.slug, str(self.id)])
+        return reverse('update_slides', args=[self.event.slug, str(self.id)])
 
     def get_top_assets(self):
         return self.updateimage_set.all()
@@ -411,7 +416,7 @@ class Memory(BaseUserContentModel):
         return str(self.user)
 
     def get_absolute_url(self):
-        return ('memory_detail', args=[self.event.slug, self.id])
+        return reverse('memory_detail', args=[self.event.slug, self.id])
 
     def save(self, *args, **kwargs):
         self.text_formatted = sanetize_text(self.text)
